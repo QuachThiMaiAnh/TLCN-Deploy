@@ -1,30 +1,36 @@
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 const Product = require("../../models/Product");
 
+// Xử lý upload hình ảnh lên cloud
 const handleImageUpload = async (req, res) => {
   try {
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    const url = "data:" + req.file.mimetype + ";base64," + b64;
-    const result = await imageUploadUtil(url);
+    const uploadResults = await Promise.all(
+      req.files.map(async (file) => {
+        const b64 = Buffer.from(file.buffer).toString("base64");
+        const url = "data:" + file.mimetype + ";base64," + b64;
+        const result = await imageUploadUtil(url);
+        return result;
+      })
+    );
 
     res.json({
       success: true,
-      result,
+      results: uploadResults,
     });
   } catch (error) {
     console.log(error);
     res.json({
       success: false,
-      message: "Error occured",
+      message: "Error occurred",
     });
   }
 };
 
-//add a new product
+// Thêm sản phẩm mới
 const addProduct = async (req, res) => {
   try {
     const {
-      image,
+      images,
       title,
       description,
       category,
@@ -35,10 +41,17 @@ const addProduct = async (req, res) => {
       averageReview,
     } = req.body;
 
-    console.log(averageReview, "averageReview");
+    // console.log(averageReview, "averageReview");
 
+    // Kiểm tra điều kiện price < salePrice
+    if (salePrice > price) {
+      return res.status(400).json({
+        success: false,
+        message: "Giá khuyến mãi không thể lớn hơn giá sản phẩm.",
+      });
+    }
     const newlyCreatedProduct = new Product({
-      image,
+      images,
       title,
       description,
       category,
@@ -58,7 +71,7 @@ const addProduct = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Đã xảy ra lỗi nào đó",
     });
   }
 };
@@ -67,6 +80,7 @@ const addProduct = async (req, res) => {
 
 const fetchAllProducts = async (req, res) => {
   try {
+    //  find({}) là phương thức được gọi để lấy tất cả các tài liệu (documents) trong bộ sưu tập (collection)
     const listOfProducts = await Product.find({});
     res.status(200).json({
       success: true,
@@ -76,7 +90,7 @@ const fetchAllProducts = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Đã xảy ra lỗi nào đó",
     });
   }
 };
@@ -84,9 +98,17 @@ const fetchAllProducts = async (req, res) => {
 //edit a product
 const editProduct = async (req, res) => {
   try {
+    /**
+     * req.params: Đây là một đối tượng chứa các tham số URL của request (yêu cầu) khi sử dụng Express.js.
+     * Các tham số này được truyền trong phần URL của đường dẫn theo dạng /path/:paramName.
+     * Ví dụ: nếu đường dẫn là /product/123, thì req.params sẽ có dạng { id: '123' }.
+     *
+     *Destructuring ({ id }): Ở đây, cú pháp destructuring được sử dụng để lấy ra trực tiếp giá trị của thuộc tính id từ req.params.
+     *Thay vì viết const id = req.params.id;, cú pháp này giúp viết ngắn gọn hơn và dễ đọc.
+     */
     const { id } = req.params;
     const {
-      image,
+      images,
       title,
       description,
       category,
@@ -101,18 +123,32 @@ const editProduct = async (req, res) => {
     if (!findProduct)
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm này",
       });
 
+    // Kiểm tra điều kiện price < salePrice
+    if (salePrice > price) {
+      return res.status(400).json({
+        success: false,
+        message: "Giá khuyến mãi không thể lớn hơn giá sản phẩm.",
+      });
+    }
+
+    // Thay dữ liệu mới cần cần nhật từ res, các trường không thay đỏi dữ liệu thì giữ nguyên
     findProduct.title = title || findProduct.title;
     findProduct.description = description || findProduct.description;
     findProduct.category = category || findProduct.category;
     findProduct.brand = brand || findProduct.brand;
-    findProduct.price = price === "" ? 0 : price || findProduct.price;
+    // Kiểm tra price và salePrice, chỉ cập nhật nếu giá trị hợp lệ
+    findProduct.price =
+      typeof price === "number" && price >= 0 ? price : findProduct.price;
     findProduct.salePrice =
-      salePrice === "" ? 0 : salePrice || findProduct.salePrice;
+      typeof salePrice === "number" && salePrice >= 0
+        ? salePrice
+        : findProduct.salePrice;
+
     findProduct.totalStock = totalStock || findProduct.totalStock;
-    findProduct.image = image || findProduct.image;
+    findProduct.images = images || findProduct.images;
     findProduct.averageReview = averageReview || findProduct.averageReview;
 
     await findProduct.save();
@@ -124,7 +160,7 @@ const editProduct = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Đã xảy ra lỗi nào đó",
     });
   }
 };
@@ -138,18 +174,18 @@ const deleteProduct = async (req, res) => {
     if (!product)
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Không tìm thấy sản phẩm này",
       });
 
     res.status(200).json({
       success: true,
-      message: "Product delete successfully",
+      message: "Xóa sản phẩm thành công",
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error occured",
+      message: "Đã xảy ra lỗi nào đó",
     });
   }
 };

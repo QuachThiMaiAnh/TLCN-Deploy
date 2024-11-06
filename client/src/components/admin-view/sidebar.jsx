@@ -1,8 +1,11 @@
 import {
   BadgeCheck,
   ChartBar,
+  Layers3,
   LayoutDashboard,
+  PawPrint,
   ShoppingBasket,
+  SquareStack,
   Users,
 } from "lucide-react";
 import { Fragment } from "react";
@@ -21,6 +24,18 @@ const adminSidebarMenuItems = [
     label: "Sản phẩm",
     path: "/admin/products",
     icon: <ShoppingBasket />,
+  },
+  {
+    id: "brands",
+    label: "Thương hiệu",
+    path: "/admin/brands",
+    icon: <Layers3 />,
+  },
+  {
+    id: "categories",
+    label: "Loại sản phẩm",
+    path: "/admin/categories",
+    icon: <SquareStack />,
   },
   {
     id: "orders",
@@ -51,7 +66,7 @@ function MenuItems({ setOpen }) {
             navigate(menuItem.path);
             setOpen ? setOpen(false) : null;
           }}
-          className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-muted-foreground border hover:bg-muted hover:text-foreground hover:border-black "
+          className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-muted-foreground border font-bold hover:bg-muted hover:text-foreground hover:border-black "
         >
           {menuItem.icon}
           <span>{menuItem.label}</span>
@@ -80,7 +95,9 @@ function AdminSideBar({ open, setOpen }) {
             <SheetHeader className="border-b">
               <SheetTitle className="flex gap-2 mt-5 mb-5">
                 <ChartBar size={30} />
-                <p className="text-xl font-extrabold">Quản trị viên</p>
+                <p className="text-xl font-extrabold text-gradient">
+                  Quản trị viên{" "}
+                </p>
               </SheetTitle>
             </SheetHeader>
             {/* trường hợp hiển thị trên điện thoại => truyền prop setOpen để đóng/mở sideBar */}
@@ -96,7 +113,7 @@ function AdminSideBar({ open, setOpen }) {
           className="flex cursor-pointer items-center gap-2"
         >
           <ChartBar size={30} />
-          <p className="text-xl font-extrabold">Quản trị viên</p>
+          <p className="text-xl font-extrabold ">Quản trị viên</p>
         </div>
         {/* Trường hợp màn hình large => Ko có truyền prop setOpen */}
         <MenuItems />

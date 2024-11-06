@@ -7,13 +7,13 @@ import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
 
 function ProductImageUpload({
-  imageFile,
-  setImageFile,
-  // imageLoadingState,
-  uploadedImageUrl,
-  setUploadedImageUrl,
-  // setImageLoadingState,
-  // isEditMode,
+  imageFiles,
+  setImageFiles,
+  imageLoadingState,
+  uploadedImageUrls,
+  setUploadedImageUrls,
+  setImageLoadingState,
+  isEditMode,
   // isCustomStyling = false,
 }) {
   /**
@@ -28,9 +28,11 @@ function ProductImageUpload({
 
   // xử lý thay đổi hình ảnh
   function handleImageFileChange(event) {
-    console.log(event.target.files);
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) setImageFile(selectedFile);
+    const selectedFiles = event.target.files;
+    console.log(selectedFiles.length);
+    if (selectedFiles.length > 0) {
+      setImageFiles(selectedFiles); // Store FileList directly in state
+    }
   }
 
   function handleDragOver(event) {
@@ -39,17 +41,31 @@ function ProductImageUpload({
 
   function handleDrop(event) {
     event.preventDefault();
-    const droppedFile = event.dataTransfer.files?.[0];
-    if (droppedFile) setImageFile(droppedFile);
+    const droppedFiles = event.dataTransfer.files;
+    if (droppedFiles.length > 0) {
+      setImageFiles(droppedFiles);
+    }
   }
 
-  function handleRemoveImage() {
-    setImageFile(null);
+  /**
+   *  xóa một ảnh cụ thể trong danh sách các ảnh đã tải lên, bằng cách loại bỏ ảnh tại vị trí index khỏi danh sách imageFile.
+   */
+  function handleRemoveImage(index) {
+    const dataTransfer = new DataTransfer();
+    Array.from(imageFiles).forEach((file, i) => {
+      if (i !== index) {
+        dataTransfer.items.add(file);
+      }
+    });
+    setImageFiles(dataTransfer.files.length > 0 ? dataTransfer.files : null);
+    /**
+     * Đặt lại giá trị của inputRef (tức là input tải ảnh) về rỗng.
+     * Điều này đảm bảo khi người dùng muốn chọn lại file, input sẽ không lưu trạng thái trước đó.
+     */
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   }
-
   // async function uploadImageToCloudinary() {
   //   // setImageLoadingState(true);
   //   const data = new FormData();
@@ -74,27 +90,57 @@ function ProductImageUpload({
   //   if (imageFile !== null) uploadImageToCloudinary();
   // }, [imageFile]);
 
+  async function uploadImagesToCloudinary() {
+    // Chỗ này hay lỗi!!
+    // ĐỢI ẢNH UPLOAD XONG MỚI CẬP NHẬT URL ĐỂ TRÁNH BỊ LỖI
+    setImageLoadingState(true);
+    const data = new FormData();
+    for (const file of imageFiles) {
+      data.append("my_files", file);
+    }
+
+    const response = await axios.post(
+      "http://localhost:5000/api/admin/products/upload-image",
+      data
+    );
+
+    if (response?.data?.success) {
+      const uploadedUrls = response.data.results.map((r) => r.url);
+      setUploadedImageUrls(uploadedUrls); // Update the state here
+      setImageLoadingState(false);
+    }
+  }
+
+  useEffect(() => {
+    console.log("Updated imageFiles:", imageFiles);
+  }, [imageFiles]);
+
+  useEffect(() => {
+    console.log("Updated uploadedImageUrls:", uploadedImageUrls);
+  }, [uploadedImageUrls]);
+
+  useEffect(() => {
+    if (imageFiles && imageFiles.length > 0) uploadImagesToCloudinary();
+  }, [imageFiles]);
   return (
+    // Xử lý upload hình ảnh
     <div
       className="w-full max-w-md mx-auto"
       // className={`w-full  mt-4 ${isCustomStyling ? "" : "max-w-md mx-auto"}`}
     >
-      <Label className="text-lg font-semibold mb-2 block">
-        Tải hình ảnh lên
+      <Label className=" font-semibold my-4 block">
+        Chọn hình ảnh sản phẩm
       </Label>
+
+      {/* Tạo khung chứa ảnh */}
       <div
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        className="
-         border-2 border-dashed rounded-lg p-4"
-      >
-        {/* <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         className={`${
           isEditMode ? "opacity-60" : ""
         } border-2 border-dashed rounded-lg p-4`}
-      > */}
+      >
+        {/* ẩn input */}
         <Input
           id="image-upload"
           multiple
@@ -102,41 +148,41 @@ function ProductImageUpload({
           className="hidden"
           ref={inputRef}
           onChange={handleImageFileChange}
-          // disabled={isEditMode}
+          disabled={isEditMode}
         />
-        {!imageFile ? (
-          // <Label
-          //   htmlFor="image-upload"
-          //   className={`${
-          //     isEditMode ? "cursor-not-allowed" : ""
-          //   } flex flex-col items-center justify-center h-32 cursor-pointer`}
-          // >
-          //   :imageLoadingState ? (
-          //   <Skeleton className="h-10 bg-gray-100" />
-          // )
+        {!imageFiles ? (
           <Label
             htmlFor="image-upload"
-            className="
-            flex flex-col items-center justify-center h-32 cursor-pointer"
+            className={`${
+              isEditMode ? "cursor-not-allowed" : ""
+            } flex flex-col items-center justify-center h-32 cursor-pointer`}
           >
-            <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
+            <UploadCloudIcon className="w-10 h-10 mb-2" />
             <span>Kéo, thả hoặc click để tải ảnh</span>
           </Label>
+        ) : imageLoadingState ? (
+          // giữ chỗ ảnh
+          <Skeleton className="h-24 bg-gray-300" />
         ) : (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <FileIcon className="w-8 text-primary mr-2 h-8" />
-            </div>
-            <p className="text-sm font-medium">{imageFile.name}</p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground"
-              onClick={handleRemoveImage}
-            >
-              <XIcon className="w-4 h-4" />
-              <span className="sr-only">Remove File</span>
-            </Button>
+          <div className="my-2 grid grid-cols-3 gap-2">
+            {Array.from(imageFiles).map((file, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Uploaded thumbnail"
+                  className="w-full h-24 object-cover rounded-lg"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 text-muted-foreground hover:text-foreground"
+                  onClick={() => handleRemoveImage(index)}
+                >
+                  <XIcon className="w-4 h-4" />
+                  <span className="sr-only">Remove File</span>
+                </Button>
+              </div>
+            ))}
           </div>
         )}
       </div>

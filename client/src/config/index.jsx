@@ -91,14 +91,14 @@ export const addProductFormElements = [
     name: "price",
     componentType: "input",
     type: "number",
-    placeholder: "Nhập giá sản phẩm",
+    placeholder: "Nhập giá sản phẩm (VNĐ)",
   },
   {
     label: "Giá khuyến mãi",
     name: "salePrice",
     componentType: "input",
     type: "number",
-    placeholder: "Nhập giá bán khuyễn mãi (tùy chọn)",
+    placeholder: "Nhập giá bán khuyễn mãi (VNĐ)",
   },
   {
     label: "Tồn kho",

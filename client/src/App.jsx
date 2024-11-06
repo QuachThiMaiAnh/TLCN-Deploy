@@ -20,6 +20,8 @@ import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminUsers from "./pages/admin-view/users";
+import AdminBrands from "./pages/admin-view/brand";
+import AdminCategories from "./pages/admin-view/categories";
 
 function App() {
   /**
@@ -68,6 +70,8 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="brands" element={<AdminBrands />} />
+          <Route path="categories" element={<AdminCategories />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
           <Route path="users" element={<AdminUsers />} />

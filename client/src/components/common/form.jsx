@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import {
@@ -11,23 +11,92 @@ import {
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Eye, EyeOff } from "lucide-react";
+
 function CommonForm({
   formControls,
   formData,
   setFormData,
   onSubmit,
   buttonText,
-  isBtnDisabled,
 }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState(true); // State for password errors
-  const [emailError, setEmailError] = useState(true); // State for email errors
+  const [passwordError, setPasswordError] = useState(""); // Lưu lỗi cho password
+  const [emailError, setEmailError] = useState(""); // Lưu lỗi cho email
+  const [displayValues, setDisplayValues] = useState({}); // Lưu giá trị hiển thị cho input số
+  const [isBtnDisabled, setIsBtnDisabled] = useState(true); // Thêm trạng thái cho nút submit
+
+  useEffect(() => {
+    setIsBtnDisabled(!validateForm()); // Cập nhật trạng thái nút dựa trên kết quả validate
+  }, [formData, passwordError, emailError]); // Kiểm tra lại mỗi khi formData, passwordError, emailError thay đổi
 
   const types = {
     INPUT: "input",
   };
 
-  // Password validation function with specific rules
+  function validateForm() {
+    let isValid = true;
+
+    // Validate password
+    if (formData.password && !validatePassword(formData.password)) {
+      isValid = false;
+    }
+
+    // Validate email
+    if (formData.email && !validateEmail(formData.email)) {
+      isValid = false;
+    }
+
+    // Kiểm tra tất cả các trường để không được trống, ngoại trừ giá trị số 0
+    for (const control of formControls) {
+      const value = formData[control.name];
+      if (value === null || value === undefined || value === "") {
+        isValid = false;
+        break;
+      }
+    }
+
+    return isValid;
+  }
+
+  function handleEmailChange(event) {
+    const { value } = event.target;
+    setFormData({
+      ...formData,
+      [event.target.name]: value,
+    });
+    validateEmail(value);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    if (validateForm()) {
+      onSubmit(); // Chỉ gọi hàm onSubmit nếu tất cả các trường hợp lệ
+    } else {
+      alert("Vui lòng điền đầy đủ và chính xác các thông tin.");
+    }
+  }
+
+  // Hàm định dạng số với dấu chấm ngăn cách
+  function formatNumberWithSeparator(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function handleNumberChange(event, name) {
+    let inputValue = event.target.value.replace(/\./g, ""); // Xóa dấu chấm khỏi giá trị nhập
+    let displayValue = formatNumberWithSeparator(inputValue); // Thêm dấu chấm ngăn cách
+
+    setDisplayValues({
+      ...displayValues,
+      [name]: displayValue, // Cập nhật giá trị hiển thị cho input số
+    });
+
+    setFormData({
+      ...formData,
+      // [name]: Number(inputValue), // Lưu giá trị không có dấu chấm vào formData
+      [name]: !isNaN(inputValue) ? Number(inputValue) : "", // Nếu rỗng thì gán giá trị "" để tránh NaN
+    });
+  }
+
   function validatePassword(password) {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -56,19 +125,18 @@ function CommonForm({
       return false;
     }
 
-    setPasswordError(""); // Clear any error if validation passes
+    setPasswordError(""); // Xóa lỗi nếu hợp lệ
     return true;
   }
 
-  // Email validation function
   function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError("Vui lòng nhập địa chỉ email hợp lệ.");
       return false;
     }
 
-    setEmailError(""); // Clear any error if validation passes
+    setEmailError(""); // Xóa lỗi nếu hợp lệ
     return true;
   }
 
@@ -89,10 +157,28 @@ function CommonForm({
     });
     validateEmail(value);
   }
+  useEffect(() => {
+    // Định dạng lại các giá trị số khi dữ liệu từ database được load lên
+    const formattedDisplayValues = {};
+    for (const control of formControls) {
+      if (control.type === "number" && formData[control.name] != null) {
+        formattedDisplayValues[control.name] = formatNumberWithSeparator(
+          formData[control.name]
+        );
+      }
+    }
+    setDisplayValues(formattedDisplayValues);
+  }, [formData, formControls]);
+
+  // Hàm định dạng số với dấu chấm ngăn cách (giữ nguyên)
+  function formatNumberWithSeparator(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
 
   function renderInputsByComponentType(getControlItem) {
     let element = null;
     const value = formData[getControlItem.name] || "";
+    const displayValue = displayValues[getControlItem.name] || value;
 
     switch (getControlItem.componentType) {
       case types.INPUT:
@@ -105,7 +191,7 @@ function CommonForm({
                 id={getControlItem.name}
                 type={showPassword ? "text" : "password"}
                 value={value}
-                onChange={handlePasswordChange} // Handle password change
+                onChange={handlePasswordChange}
               />
               <button
                 type="button"
@@ -132,12 +218,27 @@ function CommonForm({
                 id={getControlItem.name}
                 type="email"
                 value={value}
-                onChange={handleEmailChange} // Handle email change
+                onChange={handleEmailChange}
               />
               {emailError && (
                 <p className="text-red-500 text-sm">{emailError}</p>
               )}
             </div>
+          );
+        } else if (getControlItem.type === "number") {
+          element = (
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type="text"
+              value={displayValue} // Hiển thị giá trị có dấu chấm ngăn cách
+              onChange={(event) =>
+                handleNumberChange(event, getControlItem.name)
+              }
+              // inputMode="numeric" // Hỗ trợ bàn phím số trên thiết bị di động
+              // pattern="[0-9]*" // Đảm bảo chỉ cho phép các ký tự số
+            />
           );
         } else {
           element = (

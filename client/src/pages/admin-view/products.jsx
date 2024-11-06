@@ -1,80 +1,188 @@
-import { useState, useRef } from "react";
-import { UploadCloudIcon, XIcon } from "lucide-react";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
+import AdminProductTile from "@/components/admin-view/product-tile";
+import ProductImageUpload from "@/components/admin-view/image-upload";
+import CommonForm from "@/components/common/form";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+// import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { addProductFormElements } from "@/config";
+import {
+  addNewProduct,
+  deleteProduct,
+  editProduct,
+  fetchAllProducts,
+} from "@/store/admin/products-slice";
+import { Fragment, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-function ProductImageUpload() {
-  const [imageFiles, setImageFiles] = useState(null); // Store FileList directly
-  const inputRef = useRef(null);
+const initialFormData = {
+  images: null,
+  title: "",
+  description: "",
+  category: "",
+  brand: "",
+  price: "",
+  salePrice: "",
+  totalStock: "",
+  averageReview: 0,
+};
 
-  function handleImageFileChange(event) {
-    const selectedFiles = event.target.files;
-    if (selectedFiles.length > 0) {
-      setImageFiles(selectedFiles); // Store FileList directly in state
-    }
+function AdminProducts() {
+  const [openCreateProductsDialog, setOpenCreateProductsDialog] =
+    useState(false);
+  const [formData, setFormData] = useState(initialFormData);
+  const [imageFiles, setImageFiles] = useState(null);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+
+  const [imageLoadingState, setImageLoadingState] = useState(false);
+  const [currentEditedId, setCurrentEditedId] = useState(null);
+
+  const { productList } = useSelector((state) => state.adminProducts);
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+
+  function onSubmit(event) {
+    event.preventDefault();
+
+    currentEditedId !== null
+      ? dispatch(
+          editProduct({
+            id: currentEditedId,
+            formData,
+          })
+        ).then((data) => {
+          console.log(data, "Sửa thông tin sản phẩm");
+
+          if (data?.payload?.success) {
+            toast({
+              title: "Sửa thông tin sản phẩm thành công!",
+            });
+            dispatch(fetchAllProducts());
+            setFormData(initialFormData);
+            setOpenCreateProductsDialog(false);
+            setCurrentEditedId(null);
+          } else {
+            toast({
+              title:
+                "Sửa sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+              variant: "destructive",
+            });
+          }
+        })
+      : dispatch(
+          addNewProduct({
+            ...formData,
+            images: uploadedImageUrls,
+          })
+        ).then((data) => {
+          if (data?.payload?.success) {
+            dispatch(fetchAllProducts());
+            setOpenCreateProductsDialog(false);
+            setImageFiles(null);
+            setFormData(initialFormData);
+            toast({
+              title: "Thêm sản phẩm mới thành công!",
+            });
+          } else {
+            toast({
+              title:
+                "Thêm sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+              variant: "destructive",
+            });
+          }
+          console.log(data);
+        });
   }
 
-  function handleRemoveImage(index) {
-    const fileArray = Array.from(imageFiles);
-    fileArray.splice(index, 1);
-    setImageFiles(fileArray.length ? new DataTransfer().files : null);
+  function handleDelete(getCurrentProductId) {
+    dispatch(deleteProduct(getCurrentProductId)).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchAllProducts());
+      }
+    });
   }
+
+  // function isFormValid() {
+  //   return Object.keys(formData)
+  //     .filter((currentKey) => currentKey !== "averageReview")
+  //     .map((key) => formData[key] !== "")
+  //     .every((item) => item);
+  // }
+
+  useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Label className="text-lg font-semibold mb-2 block">
-        Tải hình ảnh lên
-      </Label>
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          const droppedFiles = e.dataTransfer.files;
-          setImageFiles(droppedFiles);
-        }}
-        className="border-2 border-dashed rounded-lg p-4"
-      >
-        <Input
-          id="image-upload"
-          multiple
-          type="file"
-          className="hidden"
-          ref={inputRef}
-          onChange={handleImageFileChange}
-        />
-        <Label
-          htmlFor="image-upload"
-          className="flex flex-col items-center justify-center h-32 cursor-pointer"
-        >
-          <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
-          <span>Kéo, thả hoặc click để tải ảnh</span>
-        </Label>
+    <Fragment>
+      <div className="mb-5 w-full flex justify-end">
+        {/* click để mở form thêm sản phẩm mới */}
+        <Button onClick={() => setOpenCreateProductsDialog(true)}>
+          Thêm sản phẩm mới
+        </Button>
+      </div>
+      {/* Hiển thị danh sách sản phẩm */}
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {productList && productList.length > 0
+          ? productList.map((productItem) => (
+              <AdminProductTile
+                setFormData={setFormData}
+                setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+                setCurrentEditedId={setCurrentEditedId}
+                product={productItem}
+                handleDelete={handleDelete}
+              />
+            ))
+          : null}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {imageFiles &&
-          Array.from(imageFiles).map((file, index) => (
-            <div key={index} className="relative">
-              <img
-                src={URL.createObjectURL(file)}
-                alt="Uploaded thumbnail"
-                className="w-full h-24 object-cover rounded-lg"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-1 right-1 text-muted-foreground hover:text-foreground"
-                onClick={() => handleRemoveImage(index)}
-              >
-                <XIcon className="w-4 h-4" />
-                <span className="sr-only">Remove File</span>
-              </Button>
-            </div>
-          ))}
-      </div>
-    </div>
+      {/* mở ra khi form thêm sản phẩm được gọi */}
+      <Sheet
+        open={openCreateProductsDialog}
+        onOpenChange={() => {
+          setOpenCreateProductsDialog(false);
+          // khi dialog được mở lại một lần nữa thì thông tin form phải được clear lại
+          setCurrentEditedId(null);
+          setFormData(initialFormData);
+        }}
+      >
+        <SheetContent side="right" className="overflow-auto lg:max-w-3xl">
+          <SheetHeader>
+            <SheetTitle className="text-xl font-extrabold text-gradient">
+              {currentEditedId !== null
+                ? "Chỉnh sửa sản phẩm"
+                : "Thêm mới sản phẩm"}
+            </SheetTitle>
+          </SheetHeader>
+          <ProductImageUpload
+            imageFiles={imageFiles}
+            setImageFiles={setImageFiles}
+            uploadedImageUrls={uploadedImageUrls}
+            setUploadedImageUrls={setUploadedImageUrls}
+            setImageLoadingState={setImageLoadingState}
+            imageLoadingState={imageLoadingState}
+            isEditMode={currentEditedId !== null}
+          />
+
+          <div className="py-6 ">
+            <CommonForm
+              onSubmit={onSubmit}
+              formData={formData}
+              setFormData={setFormData}
+              buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
+              formControls={addProductFormElements}
+              // isBtnDisabled={!isFormValid()}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </Fragment>
   );
 }
 
-export default ProductImageUpload;
+export default AdminProducts;

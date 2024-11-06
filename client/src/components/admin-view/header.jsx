@@ -11,11 +11,14 @@ function AdminHeader({ setOpen }) {
   }
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-background border-b">
+    <header className="flex items-center justify-between px-4 py-3 bg-background border-b relative ">
       <Button onClick={() => setOpen(true)} className="lg:hidden sm:block">
         <Logs />
         <span className="sr-only">Toggle Menu</span>
       </Button>
+      <p className="absolute left-1/2 -translate-x-1/2 text-2xl font-extrabold drop-shadow-lg hover:scale-110  transition-transform ">
+        BLISS{" "}
+      </p>
       {/* nằm phía cuối container */}
       <div className="flex flex-1 justify-end">
         <Button
