@@ -7,7 +7,7 @@ const addAddress = async (req, res) => {
     if (!userId || !address || !city || !pincode || !phone || !notes) {
       return res.status(400).json({
         success: false,
-        message: "Invalid data provided!",
+        message: "Dữ liệu được cung cấp không hợp lệ!",
       });
     }
 
@@ -41,7 +41,7 @@ const fetchAllAddress = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User id is required!",
+        message: "Cần phải nhập ID người dùng!",
       });
     }
 
@@ -68,7 +68,7 @@ const editAddress = async (req, res) => {
     if (!userId || !addressId) {
       return res.status(400).json({
         success: false,
-        message: "User and address id is required!",
+        message: "Cần phải có ID người dùng và địa chỉ!",
       });
     }
 
@@ -84,7 +84,7 @@ const editAddress = async (req, res) => {
     if (!address) {
       return res.status(404).json({
         success: false,
-        message: "Address not found",
+        message: "Không tìm thấy địa chỉ!",
       });
     }
 
@@ -107,7 +107,7 @@ const deleteAddress = async (req, res) => {
     if (!userId || !addressId) {
       return res.status(400).json({
         success: false,
-        message: "User and address id is required!",
+        message: "Cần phải có ID người dùng và địa chỉ!",
       });
     }
 
@@ -116,13 +116,13 @@ const deleteAddress = async (req, res) => {
     if (!address) {
       return res.status(404).json({
         success: false,
-        message: "Address not found",
+        message: "Không tìm thấy địa chỉ!",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Address deleted successfully",
+      message: "Địa chỉ đã được xóa thành công!",
     });
   } catch (e) {
     console.log(e);

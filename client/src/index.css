@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +10,11 @@
   --primary: 220, 98%, 61%;
 }
  */
+
+html {
+  font-family: "Nunito", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -75,5 +82,5 @@
 }
 
 .text-gradient {
-  @apply text-xl font-extrabold bg-gradient-to-r bg-gradient-text bg-clip-text text-transparent;
+  @apply text-2xl font-extrabold bg-gradient-to-r bg-gradient-text bg-clip-text text-transparent;
 }

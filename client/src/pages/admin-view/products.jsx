@@ -107,12 +107,12 @@ function AdminProducts() {
     });
   }
 
-  // function isFormValid() {
-  //   return Object.keys(formData)
-  //     .filter((currentKey) => currentKey !== "averageReview")
-  //     .map((key) => formData[key] !== "")
-  //     .every((item) => item);
-  // }
+  function isFormValid() {
+    return Object.keys(formData)
+      .filter((currentKey) => currentKey !== "averageReview")
+      .map((key) => formData[key] !== "")
+      .every((item) => item);
+  }
 
   useEffect(() => {
     dispatch(fetchAllProducts());

@@ -66,12 +66,19 @@ export const addProductFormElements = [
     name: "category",
     componentType: "select",
     options: [
-      { id: "men", label: "Đàn ông" },
-      { id: "women", label: "Phụ nữ" },
+      { id: "men", label: "Nam" },
+      { id: "women", label: "Nữ" },
       { id: "kids", label: "Trẻ em" },
       { id: "accessories", label: "Phụ kiện" },
       { id: "footwear", label: "Giày dép" },
     ],
+    // options: [
+    //   { id: "Nam", label: "Nam" },
+    //   { id: "Nữ", label: "Nữ" },
+    //   { id: "Trẻ em", label: "Trẻ em" },
+    //   { id: "Phụ kiện", label: "Phụ kiện" },
+    //   { id: "Giày dép", label: "Giày dép" },
+    // ],
   },
   {
     label: "Thương hiệu",
@@ -122,12 +129,12 @@ export const shoppingViewHeaderMenuItems = [
   },
   {
     id: "men",
-    label: "Đàn ông",
+    label: "Nam",
     path: "/shop/listing",
   },
   {
     id: "women",
-    label: "Phụ nữ",
+    label: "Nữ",
     path: "/shop/listing",
   },
   {
@@ -152,14 +159,24 @@ export const shoppingViewHeaderMenuItems = [
   },
 ];
 
+// export const categoryOptionsMap = {
+//   men: "Men",
+//   women: "Women",
+//   kids: "Kids",
+//   accessories: "Accessories",
+//   footwear: "Footwear",
+// };
+
+// map với id để hiển thị chữ tiếng Việt
 export const categoryOptionsMap = {
-  men: "Men",
-  women: "Women",
-  kids: "Kids",
-  accessories: "Accessories",
-  footwear: "Footwear",
+  men: "Nam",
+  women: "Nữ",
+  kids: "Trẻ em",
+  accessories: "Phụ kiện",
+  footwear: "Giày dép",
 };
 
+// map với id để hiển thị chữ tiếng Việt
 export const brandOptionsMap = {
   nike: "Nike",
   adidas: "Adidas",
@@ -170,63 +187,69 @@ export const brandOptionsMap = {
 };
 
 export const filterOptions = {
-  category: [
-    { id: "men", label: "Men" },
-    { id: "women", label: "Women" },
-    { id: "kids", label: "Kids" },
-    { id: "accessories", label: "Accessories" },
-    { id: "footwear", label: "Footwear" },
-  ],
-  brand: [
-    { id: "nike", label: "Nike" },
-    { id: "adidas", label: "Adidas" },
-    { id: "puma", label: "Puma" },
-    { id: "levi", label: "Levi's" },
-    { id: "zara", label: "Zara" },
-    { id: "h&m", label: "H&M" },
-  ],
+  category: {
+    label: "Loại sản phẩm",
+    options: [
+      { id: "men", label: "Nam" },
+      { id: "women", label: "Nữ" },
+      { id: "kids", label: "Trẻ em" },
+      { id: "accessories", label: "Phụ kiện" },
+      { id: "footwear", label: "Giày dép" },
+    ],
+  },
+  brand: {
+    label: "Thương hiệu",
+    options: [
+      { id: "nike", label: "Nike" },
+      { id: "adidas", label: "Adidas" },
+      { id: "puma", label: "Puma" },
+      { id: "levi", label: "Levi's" },
+      { id: "zara", label: "Zara" },
+      { id: "h&m", label: "H&M" },
+    ],
+  },
 };
 
 export const sortOptions = [
-  { id: "price-lowtohigh", label: "Price: Low to High" },
-  { id: "price-hightolow", label: "Price: High to Low" },
-  { id: "title-atoz", label: "Title: A to Z" },
-  { id: "title-ztoa", label: "Title: Z to A" },
+  { id: "price-lowtohigh", label: "Giá: Thấp đến cao" },
+  { id: "price-hightolow", label: "Giá: Cao đến thấp" },
+  { id: "title-atoz", label: "Tên sản phẩm: A đến Z" },
+  { id: "title-ztoa", label: "Tên sản phẩm: Z đến A" },
 ];
 
 export const addressFormControls = [
   {
-    label: "Address",
+    label: "Địa chỉ",
     name: "address",
     componentType: "input",
     type: "text",
-    placeholder: "Enter your address",
+    placeholder: "Nhập địa chỉ của bạn",
   },
   {
-    label: "City",
+    label: "Tỉnh/ Thành phố",
     name: "city",
     componentType: "input",
     type: "text",
-    placeholder: "Enter your city",
+    placeholder: "Nhập thành phố của bạn",
   },
   {
     label: "Pincode",
     name: "pincode",
     componentType: "input",
     type: "text",
-    placeholder: "Enter your pincode",
+    placeholder: "Nhập mã pin của bạn",
   },
   {
-    label: "Phone",
+    label: "Số điện thoại",
     name: "phone",
     componentType: "input",
     type: "text",
-    placeholder: "Enter your phone number",
+    placeholder: "Nhập số điện thoại của bạn",
   },
   {
-    label: "Notes",
+    label: "Ghi chú",
     name: "notes",
     componentType: "textarea",
-    placeholder: "Enter any additional notes",
+    placeholder: "Nhập bất kỳ ghi chú bổ sung nào",
   },
 ];

@@ -137,6 +137,7 @@ function ProductImageUpload({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         className={`${
+          // isEditMode ? "" : ""
           isEditMode ? "opacity-60" : ""
         } border-2 border-dashed rounded-lg p-4`}
       >
@@ -148,12 +149,13 @@ function ProductImageUpload({
           className="hidden"
           ref={inputRef}
           onChange={handleImageFileChange}
-          disabled={isEditMode}
+          // disabled={isEditMode}
         />
         {!imageFiles ? (
           <Label
             htmlFor="image-upload"
             className={`${
+              // isEditMode ? "" : ""
               isEditMode ? "cursor-not-allowed" : ""
             } flex flex-col items-center justify-center h-32 cursor-pointer`}
           >
