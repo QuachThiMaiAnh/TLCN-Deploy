@@ -6,7 +6,7 @@ const searchProducts = async (req, res) => {
     if (!keyword || typeof keyword !== "string") {
       return res.status(400).json({
         succes: false,
-        message: "Keyword is required and must be in string format",
+        message: "Từ khóa là bắt buộc và phải ở định dạng chuỗi!",
       });
     }
 

@@ -26,7 +26,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       : 0;
 
   return (
-    <SheetContent className="sm:max-w-lg">
+    <SheetContent className="sm:max-w-lg h-full overflow-auto">
       <SheetHeader>
         <SheetTitle className="text-gradient">Giỏ hàng</SheetTitle>
       </SheetHeader>
@@ -54,7 +54,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         }}
         className="w-full mt-6"
       >
-        Checkout
+        Thanh toán
       </Button>
     </SheetContent>
   );

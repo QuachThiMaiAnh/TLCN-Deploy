@@ -14,7 +14,7 @@ function ProductImageUpload({
   setUploadedImageUrls,
   setImageLoadingState,
   isEditMode,
-  // isCustomStyling = false,
+  isCustomStyling = false,
 }) {
   /**
    * useRef là một hook dùng để tạo một tham chiếu (reference) đến một phần tử DOM hoặc một giá trị nào đó
@@ -24,7 +24,7 @@ function ProductImageUpload({
    */
   const inputRef = useRef(null);
 
-  // console.log(isEditMode, "isEditMode");
+  console.log(isEditMode, "isEditMode");
 
   // xử lý thay đổi hình ảnh
   function handleImageFileChange(event) {
@@ -149,7 +149,7 @@ function ProductImageUpload({
           className="hidden"
           ref={inputRef}
           onChange={handleImageFileChange}
-          // disabled={isEditMode}
+          disabled={isEditMode}
         />
         {!imageFiles ? (
           <Label

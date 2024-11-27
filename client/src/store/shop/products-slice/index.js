@@ -6,11 +6,15 @@ const initialState = {
   isLoading: false,
   productList: [],
   productDetails: null,
+  totalPages: 0,
+  currentPage: 1,
+  totalCount: 0,
+  error: null,
 };
 
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async ({ filterParams, sortParams }) => {
+  async ({ filterParams, sortParams, page = 1, pageSize = 10 }) => {
     // console.log(fetchAllFilteredProducts, "fetchAllFilteredProducts");
     const query = new URLSearchParams({
       ...filterParams,
@@ -18,7 +22,7 @@ export const fetchAllFilteredProducts = createAsyncThunk(
     });
 
     const result = await axios.get(
-      `http://localhost:5000/api/shop/products/get?${query}`
+      `http://localhost:5000/api/shop/products/get?page=${page}&pageSize=${pageSize}&${query}`
     );
 
     // console.log(result);
@@ -54,6 +58,9 @@ const shoppingProductSlice = createSlice({
       .addCase(fetchAllFilteredProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.productList = action.payload.data;
+        state.totalPages = action.payload.totalPages; // Lưu tổng số trang
+        state.currentPage = action.payload.currentPage; // Lưu trang hiện tại
+        state.totalCount = action.payload.totalProducts; // Lưu tổng số sản phẩm
       })
       .addCase(fetchAllFilteredProducts.rejected, (state, action) => {
         state.isLoading = false;

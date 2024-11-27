@@ -11,6 +11,9 @@ import {
 } from "@/store/shop/address-slice";
 import AddressCard from "./address-card";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "../ui/label";
+import { Badge } from "../ui/badge";
+import AddressSelector from "./addressSelector";
 
 const initialAddressFormData = {
   address: "",
@@ -21,6 +24,7 @@ const initialAddressFormData = {
 };
 
 function Address({ setCurrentSelectedAddress, selectedId }) {
+  const [phoneError, setPhoneError] = useState("");
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
   const dispatch = useDispatch();
@@ -77,7 +81,7 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   function handleDeleteAddress(getCurrentAddress) {
-    console.log(getCurrentAddress, "curAdd");
+    console.log(getCurrentAddress, "currentAddress");
     dispatch(
       deleteAddress({ userId: user?.id, addressId: getCurrentAddress._id })
     ).then((data) => {
@@ -104,10 +108,21 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     });
   }
 
+  function isValidVietnamPhoneNumber(phone) {
+    const vietnamPhoneRegex = /^(0)([1-9])[0-9]{8,9}$/;
+    return vietnamPhoneRegex.test(phone.trim());
+  }
+
   function isFormValid() {
-    return Object.keys(formData)
-      .map((key) => formData[key].trim() !== "")
-      .every((item) => item);
+    const isPhoneValid = isValidVietnamPhoneNumber(formData.phone);
+    if (!isPhoneValid) {
+      setPhoneError(
+        "Số điện thoại chưa hợp lệ. Vui lòng nhập lại để tiếp tục !"
+      ); // Set error message
+    } else {
+      setPhoneError(""); // Clear error message if valid
+    }
+    return isPhoneValid;
   }
 
   useEffect(() => {
@@ -133,17 +148,27 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       </div>
       <CardHeader>
         <CardTitle className="text-gradient">
-          {currentEditedId !== null ? "Sửa địa chỉ" : "Thêm Địa Chỉ Mới"}
+          {currentEditedId !== null ? "Sửa địa chỉ" : "Thêm địa chỉ"}
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-3">
+        {formData.phone && phoneError && (
+          <Label>
+            <Badge className="py-1 px-3 font-bold text-red-600 bg-white border-black shadow-inner shadow-black hover:bg-white">
+              {phoneError}
+            </Badge>
+          </Label>
+        )}
+
         <CommonForm
           formControls={addressFormControls}
           formData={formData}
           setFormData={setFormData}
           buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
           onSubmit={handleManageAddress}
-          isBtnDisabled={!isFormValid()}
+          externalValidation={isFormValid} // Truyền điều kiện validate riêng
+          // isBtnDisabled={!isFormValid()}
         />
       </CardContent>
     </Card>

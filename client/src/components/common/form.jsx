@@ -18,6 +18,7 @@ function CommonForm({
   setFormData,
   onSubmit,
   buttonText,
+  externalValidation = () => true, // Nhận thêm hàm validate từ bên ngoài
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(""); // Lưu lỗi cho password
@@ -26,8 +27,8 @@ function CommonForm({
   const [isBtnDisabled, setIsBtnDisabled] = useState(true); // Thêm trạng thái cho nút submit
 
   useEffect(() => {
-    setIsBtnDisabled(!validateForm()); // Cập nhật trạng thái nút dựa trên kết quả validate
-  }, [formData, passwordError, emailError]); // Kiểm tra lại mỗi khi formData, passwordError, emailError thay đổi
+    setIsBtnDisabled(!validateForm() || !externalValidation()); // Kết hợp validate nội bộ và ngoại vi
+  }, [formData, passwordError, emailError, externalValidation]); // Theo dõi thay đổi validate bên ngoài
 
   const types = {
     INPUT: "input",
@@ -47,11 +48,27 @@ function CommonForm({
     }
 
     // Kiểm tra tất cả các trường để không được trống, ngoại trừ giá trị số 0
+    // for (const control of formControls) {
+    //   const value = formData[control.name];
+    //   if (value === null || value === undefined || value === "") {
+    //     isValid = false;
+    //     break;
+    //   }
+    // }
+
+    // Check all fields, except for optional fields
     for (const control of formControls) {
       const value = formData[control.name];
+
+      // Skip validation for optional fields
+      if (control.required === false) {
+        continue; // Skip if the field is optional
+      }
+
+      // Check for required fields
       if (value === null || value === undefined || value === "") {
         isValid = false;
-        break;
+        break; // Exit loop if a required field is empty
       }
     }
 
@@ -65,15 +82,6 @@ function CommonForm({
       [event.target.name]: value,
     });
     validateEmail(value);
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    if (validateForm()) {
-      onSubmit(); // Chỉ gọi hàm onSubmit nếu tất cả các trường hợp lệ
-    } else {
-      alert("Vui lòng điền đầy đủ và chính xác các thông tin.");
-    }
   }
 
   // Hàm định dạng số với dấu chấm ngăn cách
@@ -242,19 +250,22 @@ function CommonForm({
           );
         } else {
           element = (
-            <Input
-              name={getControlItem.name}
-              placeholder={getControlItem.placeholder}
-              id={getControlItem.name}
-              type={getControlItem.type}
-              value={value}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  [getControlItem.name]: event.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                name={getControlItem.name}
+                placeholder={getControlItem.placeholder}
+                id={getControlItem.name}
+                type={getControlItem.type}
+                value={value}
+                onChange={(event) =>
+                  setFormData({
+                    ...formData,
+                    [getControlItem.name]: event.target.value,
+                  })
+                }
+              />
+              {/* {textError && <p className="text-red-500 text-sm">{textError}</p>} */}
+            </div>
           );
         }
         break;
@@ -328,7 +339,7 @@ function CommonForm({
       <div className="flex flex-col gap-3">
         {formControls.map((controlItem) => (
           <div className="grid w-full gap-1.5" key={controlItem.name}>
-            <Label className="mb-1">{controlItem.label}</Label>
+            <Label className="mb-1 font-bold">{controlItem.label}</Label>
             {renderInputsByComponentType(controlItem)}
           </div>
         ))}

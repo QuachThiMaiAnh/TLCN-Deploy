@@ -19,6 +19,10 @@ import {
 } from "@/store/admin/products-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import ArrowLeftIcon from "../../components/common/ArrowLeftIcon";
+import ArrowRightIcon from "../../components/common/ArrowRightIcon";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 const initialFormData = {
   images: null,
@@ -33,6 +37,10 @@ const initialFormData = {
 };
 
 function AdminProducts() {
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+  const [pageSize, setPageSize] = useState(4); // Số sản phẩm trên mỗi trang
+
   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
     useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -42,9 +50,23 @@ function AdminProducts() {
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
-  const { productList } = useSelector((state) => state.adminProducts);
+  const { productList, totalCount } = useSelector(
+    (state) => state.adminProducts
+  );
   const dispatch = useDispatch();
   const { toast } = useToast();
+
+  function goToNextPage() {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  }
+
+  function goToPreviousPage() {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  }
 
   function onSubmit(event) {
     event.preventDefault();
@@ -57,12 +79,11 @@ function AdminProducts() {
           })
         ).then((data) => {
           console.log(data, "Sửa thông tin sản phẩm");
-
           if (data?.payload?.success) {
             toast({
               title: "Sửa thông tin sản phẩm thành công!",
             });
-            dispatch(fetchAllProducts());
+            dispatch(fetchAllProducts({ page: currentPage, pageSize }));
             setFormData(initialFormData);
             setOpenCreateProductsDialog(false);
             setCurrentEditedId(null);
@@ -81,7 +102,7 @@ function AdminProducts() {
           })
         ).then((data) => {
           if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
+            dispatch(fetchAllProducts({ page: currentPage, pageSize }));
             setOpenCreateProductsDialog(false);
             setImageFiles(null);
             setFormData(initialFormData);
@@ -95,14 +116,13 @@ function AdminProducts() {
               variant: "destructive",
             });
           }
-          console.log(data);
         });
   }
 
   function handleDelete(getCurrentProductId) {
     dispatch(deleteProduct(getCurrentProductId)).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchAllProducts());
+        dispatch(fetchAllProducts({ page: currentPage, pageSize }));
       }
     });
   }
@@ -115,12 +135,27 @@ function AdminProducts() {
   }
 
   useEffect(() => {
-    dispatch(fetchAllProducts());
-  }, [dispatch]);
+    dispatch(fetchAllProducts({ page: currentPage, pageSize })).then(
+      (response) => {
+        // Kiểm tra xem API có trả về totalPages không
+        if (response?.payload?.totalPages) {
+          setTotalPages(response.payload.totalPages);
+        }
+      }
+    );
+  }, [dispatch, currentPage, pageSize]);
 
   return (
     <Fragment>
-      <div className="mb-5 w-full flex justify-end">
+      <div className="mb-5 w-full flex justify-between items-center">
+        <div className="flex items-center gap-12">
+          <p className="text-gradient">Tất cả sản phẩm</p>
+          <Label className="">
+            <Badge className="py-1 px-3 bg-white border-black shadow-inner shadow-black text-black hover:bg-white">
+              Hiển thị {productList.length} / {totalCount} sản phẩm
+            </Badge>
+          </Label>
+        </div>
         {/* click để mở form thêm sản phẩm mới */}
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
           Thêm sản phẩm mới
@@ -141,6 +176,30 @@ function AdminProducts() {
           : null}
       </div>
 
+      {/* Hiện thị phân trang */}
+      <div className="flex justify-center items-center mt-4 gap-4">
+        <button
+          className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+          disabled={currentPage === 1}
+          onClick={goToPreviousPage}
+        >
+          {/* Mũi tên trái */}
+          <ArrowLeftIcon className="w-6 h-6 " />
+        </button>
+
+        <span className="font-bold">
+          Trang <span>{currentPage}</span> / {totalPages}
+        </span>
+
+        <button
+          className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+          disabled={currentPage === totalPages}
+          onClick={goToNextPage}
+        >
+          {/* Mũi tên phải */}
+          <ArrowRightIcon className="w-6 h-6" />
+        </button>
+      </div>
       {/* mở ra khi form thêm sản phẩm được gọi */}
       <Sheet
         open={openCreateProductsDialog}

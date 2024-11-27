@@ -22,13 +22,13 @@ const UserSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: [
-      "Hoạt động",
-      "Không hoạt động",
-      "Bị tạm khóa",
-      "Đang chờ xác minh",
-      "Đã vô hiệu hóa",
+      "Active",
+      "Inactive",
+      "Temporarily Locked",
+      "Pending Verification",
+      "Disabled",
     ],
-    default: "Đang chờ xác minh",
+    default: "Pending Verification",
   },
 });
 

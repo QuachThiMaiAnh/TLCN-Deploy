@@ -19,16 +19,24 @@ function UserCartItemsContent({ cartItem }) {
   // hàm xử lý thay đổi số lượng sản phẩm
   function handleUpdateQuantity(getCartItem, typeOfAction) {
     if (typeOfAction == "plus") {
+      // Thông tin một item trong giỏ hàng
+      console.log(cartItem, "cartItem");
+
+      // cartItems.items chứa danh sách các sản phẩm hiện tại trong giỏ hàng
       let getCartItems = cartItems.items || [];
 
+      // findIndex trả về vị trí của sản phẩm trong danh sách giỏ hàng dựa trên productId.
       if (getCartItems.length) {
         const indexOfCurrentCartItem = getCartItems.findIndex(
           (item) => item.productId === getCartItem?.productId
         );
 
+        // Tìm sản phẩm trong danh sách sản phẩm (productList) dựa trên _id.
         const getCurrentProductIndex = productList.findIndex(
           (product) => product._id === getCartItem?.productId
         );
+
+        // Lấy số lượng tồn kho (totalStock) của sản phẩm.
         const getTotalStock = productList[getCurrentProductIndex].totalStock;
 
         console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");

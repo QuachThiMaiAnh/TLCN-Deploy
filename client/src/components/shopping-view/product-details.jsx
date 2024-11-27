@@ -1,4 +1,4 @@
-import { StarIcon } from "lucide-react";
+import { StarIcon, StarsIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
@@ -9,18 +9,19 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";
 import { setProductDetails } from "@/store/shop/products-slice";
 import { Label } from "../ui/label";
-// import StarRatingComponent from "../common/star-rating";
+import StarRatingComponent from "../common/star-rating";
 import { useState, useRef, useEffect } from "react";
-// import { addReview, getReviews } from "@/store/shop/review-slice";
+import { addReview, getReviews, clearError } from "@/store/shop/review-slice";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
-  // const [reviewMsg, setReviewMsg] = useState("");
-  // const [rating, setRating] = useState(0);
+  const [reviewMsg, setReviewMsg] = useState("");
+  const [rating, setRating] = useState(0);
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
-  // const { reviews } = useSelector((state) => state.shopReview);
+  const { reviews, error } = useSelector((state) => state.shopReview);
 
   const { toast } = useToast();
 
@@ -55,11 +56,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     setCurrentImageIndex(index);
   };
 
-  // function handleRatingChange(getRating) {
-  //   console.log(getRating, "getRating");
+  function handleRatingChange(getRating) {
+    console.log(getRating, "getRating");
 
-  //   setRating(getRating);
-  // }
+    setRating(getRating);
+  }
 
   // xử lý thêm SP vào giỏ hàng
   function handleAddToCart(getCurrentProductId, getTotalStock) {
@@ -105,42 +106,55 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     setOpen(false);
     // state.productDetails = null;
     dispatch(setProductDetails());
-    // setRating(0);
-    // setReviewMsg("");
+    setRating(0);
+    setReviewMsg("");
   }
 
-  // function handleAddReview() {
-  //   dispatch(
-  //     addReview({
-  //       productId: productDetails?._id,
-  //       userId: user?.id,
-  //       userName: user?.userName,
-  //       reviewMessage: reviewMsg,
-  //       reviewValue: rating,
-  //     })
-  //   ).then((data) => {
-  //     if (data.payload.success) {
-  //       setRating(0);
-  //       setReviewMsg("");
-  //       dispatch(getReviews(productDetails?._id));
-  //       toast({
-  //         title: "Review added successfully!",
-  //       });
-  //     }
-  //   });
-  // }
+  function handleAddReview() {
+    dispatch(
+      addReview({
+        productId: productDetails?._id,
+        userId: user?.id,
+        userName: user?.userName,
+        reviewMessage: reviewMsg,
+        reviewValue: rating,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        setRating(0);
+        setReviewMsg("");
+        dispatch(getReviews(productDetails?._id));
+        toast({
+          title: "Đánh giá được thêm thành công !",
+        });
+      }
+    });
+    setRating(0);
+    setReviewMsg("");
+  }
 
-  // useEffect(() => {
-  //   if (productDetails !== null) dispatch(getReviews(productDetails?._id));
-  // }, [productDetails]);
+  useEffect(() => {
+    if (productDetails !== null) dispatch(getReviews(productDetails?._id));
+  }, [productDetails]);
 
-  // console.log(reviews, "reviews");
+  useEffect(() => {
+    if (error) {
+      // Hiển thị lỗi trong một khoảng thời gian ngắn, sau đó xóa lỗi
+      const timer = setTimeout(() => {
+        dispatch(clearError()); // Reset lỗi về rỗng
+      }, 5000); // Xóa lỗi sau 3 giây
 
-  // const averageReview =
-  //   reviews && reviews.length > 0
-  //     ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
-  //       reviews.length
-  //     : 0;
+      return () => clearTimeout(timer); // Dọn dẹp bộ đếm thời gian khi component unmount
+    }
+  }, [error, dispatch]);
+
+  console.log(reviews, "reviews");
+
+  const averageReview =
+    reviews && reviews.length > 0
+      ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+        reviews.length
+      : 0;
 
   return (
     <Dialog
@@ -148,7 +162,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       onOpenChange={handleDialogClose}
       onKeyDown={handleKeyDown}
     >
-      <DialogContent className="grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw] ">
+      <DialogContent className="grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw] h-full overflow-auto">
         {/* Ảnh chính */}
         <div className="relative rounded-lg ">
           <img
@@ -230,49 +244,59 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         <div className="">
           <div>
             <h1 className="text-xl text-gradient">{productDetails?.title}</h1>
-            <p
-              className={`text-muted-foreground text-md mb-1 mt-2 overflow-hidden ${
-                isExpanded ? "max-h-[300px] overflow-y-auto" : "line-clamp-3"
-              }`}
-            >
-              {productDetails?.description?.split("\n").map((line, index) => (
-                <span key={index}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
-            {/* Kiểm tra chiều dài mô tả */}
-            {productDetails?.description?.split("\n").length > 3 && (
-              <button
-                onClick={toggleExpanded}
-                className="text-blue-400 text-sm hover:underline mb-5 hover:underline-offset-2"
+            <div className="font-semibold mb-4 mt-4">
+              Kho còn{" "}
+              <span className="font-bold ">{productDetails?.totalStock}</span>{" "}
+              sản phẩm !
+            </div>
+            <p className="font-semibold mb-4">Mô tả sản phẩm : </p>
+            <div className="pl-4">
+              <p
+                className={`text-muted-foreground text-md mb-1  overflow-hidden ${
+                  isExpanded ? "max-h-[300px] overflow-y-auto" : "line-clamp-3"
+                }`}
               >
-                {isExpanded ? "Thu gọn" : "Xem thêm"}
-              </button>
-            )}
+                {productDetails?.description?.split("\n").map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </p>
+              {/* Kiểm tra chiều dài mô tả */}
+              {productDetails?.description?.split("\n").length > 3 && (
+                <button
+                  onClick={toggleExpanded}
+                  className="text-blue-400 text-sm hover:underline mb-5 hover:underline-offset-2"
+                >
+                  {isExpanded ? "Thu gọn" : "Xem thêm"}
+                </button>
+              )}
+            </div>
           </div>
 
           <div
-            className={`flex items-center mb-2 ${
-              productDetails?.salePrice > 0 ? "justify-between" : "justify-end"
+            className={`flex items-center mb-4 ${
+              productDetails?.salePrice > 0
+                ? "justify-between"
+                : "justify-start"
             }`}
           >
             {productDetails?.salePrice > 0 ? (
               <>
-                <span className="line-through text-red-400 text-md font-semibold text-primary">
+                <span className="line-through text-red-400 text-lg font-bold text-primary">
                   {productDetails?.price != null
                     ? `${formatNumberWithSeparator(productDetails.price)}đ`
                     : ""}
                 </span>
-                <span className="text-lg font-semibold text-primary">
+                <span className="text-lg font-bold text-primary">
                   {productDetails.salePrice != null
                     ? `${formatNumberWithSeparator(productDetails.salePrice)}đ`
                     : ""}
                 </span>
               </>
             ) : (
-              <span className="text-lg font-semibold text-primary">
+              <span className="text-lg font-bold text-primary">
                 {productDetails?.price != null
                   ? `${formatNumberWithSeparator(productDetails.price)}đ`
                   : ""}
@@ -280,15 +304,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             )}
           </div>
 
-          {/* <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-0.5">
-              <StarRatingComponent rating={averageReview} />
-            </div>
-            <span className="text-muted-foreground">
-              ({averageReview.toFixed(2)})
+          <div className="flex justify-between gap-2 mb-4">
+            <span>Lượt bán: {productDetails?.sales}</span>
+            <span className="text-pretty flex gap-2 items-center">
+              Đánh giá: {averageReview.toFixed(2)} <StarsIcon />
             </span>
-          </div> */}
-          <div className="mt-5 mb-5">
+          </div>
+          <div className="mb-4">
             {productDetails?.totalStock === 0 ? (
               <Button className="w-full opacity-60 cursor-not-allowed">
                 Sản phẩm đã hết hàng
@@ -307,24 +329,15 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               </Button>
             )}
           </div>
-          <Separator />
-          <div className="max-h-[300px] overflow-auto">
-            <h2 className="text-md font-bold mb-4">Đánh giá</h2>
-            <Avatar className="w-10 h-10 border">
-              <AvatarFallback>MA</AvatarFallback>
-            </Avatar>
-            <div className="grid gap-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold">mai Anh</h3>
-              </div>
-            </div>
+          {/* <Separator /> */}
 
-            {/* <div className="grid gap-6">
+          <div className="max-h-[300px] overflow-auto mb-4">
+            <div className="grid gap-4 ">
               {reviews && reviews.length > 0 ? (
                 reviews.map((reviewItem) => (
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 items-center rounded-xl bg-slate-200">
                     <Avatar className="w-10 h-10 border">
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-gray-400 font-bold">
                         {reviewItem?.userName[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -342,11 +355,14 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                   </div>
                 ))
               ) : (
-                <h1>No Reviews</h1>
+                <h1>Chưa có đánh giá nào</h1>
               )}
-            </div> */}
-            {/* <div className="mt-10 flex-col flex gap-2">
-              <Label>Write a review</Label>
+            </div>
+            <div className="mt-10 p-2 flex-col flex gap-4">
+              <Label className="font-bold text-md">
+                Thêm đánh giá sản phẩm
+              </Label>
+              {/* Hiển thị điểm sao */}
               <div className="flex gap-1">
                 <StarRatingComponent
                   rating={rating}
@@ -357,15 +373,17 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 name="reviewMsg"
                 value={reviewMsg}
                 onChange={(event) => setReviewMsg(event.target.value)}
-                placeholder="Write a review..."
+                placeholder="Viết đánh giá sản phẩm ..."
               />
+              {/* Hiển thị lỗi */}
+              {error && <p className="font-bold text-red-500">{error}</p>}{" "}
               <Button
                 onClick={handleAddReview}
                 disabled={reviewMsg.trim() === ""}
               >
-                Submit
+                Gửi
               </Button>
-            </div> */}
+            </div>
           </div>
         </div>
       </DialogContent>

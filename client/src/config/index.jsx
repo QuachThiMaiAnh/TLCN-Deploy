@@ -49,7 +49,7 @@ export const loginFormControls = [
 // Form Thêm sản phẩm mới
 export const addProductFormElements = [
   {
-    label: "Tên sản phẩm",
+    label: "Tên sản phẩm ",
     name: "title",
     componentType: "input",
     type: "text",
@@ -105,7 +105,8 @@ export const addProductFormElements = [
     name: "salePrice",
     componentType: "input",
     type: "number",
-    placeholder: "Nhập giá bán khuyễn mãi (VNĐ)",
+    placeholder: "Nhập giá bán khuyễn mãi (VNĐ) - không bắt buộc nhập ",
+    required: false,
   },
   {
     label: "Tồn kho",
@@ -251,5 +252,6 @@ export const addressFormControls = [
     name: "notes",
     componentType: "textarea",
     placeholder: "Nhập bất kỳ ghi chú bổ sung nào",
+    required: false,
   },
 ];

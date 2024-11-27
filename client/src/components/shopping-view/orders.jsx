@@ -29,6 +29,22 @@ function ShoppingOrders() {
     dispatch(getOrderDetails(getId));
   }
 
+  const getStatusLabel = (id) => {
+    const options = [
+      { id: "pending", label: "Chờ xử lý" },
+      { id: "confirmed", label: "Đã xác nhận" },
+      { id: "inShipping", label: "Đang vận chuyển" },
+      { id: "delivered", label: "Đã giao hàng" },
+      { id: "rejected", label: "Đã bị từ chối" },
+    ];
+    const status = options.find((option) => option.id === id);
+    return status ? status.label : "Không xác định"; // Trả về mặc định nếu không tìm thấy
+  };
+
+  // Hàm định dạng số với dấu chấm ngăn cách
+  function formatNumberWithSeparator(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
   useEffect(() => {
     dispatch(getAllOrdersByUserId(user?.id));
   }, [dispatch]);
@@ -61,22 +77,34 @@ function ShoppingOrders() {
             {orderList && orderList.length > 0
               ? orderList.map((orderItem) => (
                   <TableRow>
-                    <TableCell>{orderItem?._id}</TableCell>
-                    <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
+                    <TableCell className="font-bold">
+                      {orderItem?._id}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(orderItem?.orderDate).toLocaleDateString(
+                        "en-GB"
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
+                          orderItem?.orderStatus === "pending"
+                            ? "bg-blue-500"
+                            : orderItem?.orderStatus === "confirmed"
+                            ? "bg-purple-700"
+                            : orderItem?.orderStatus === "inShipping"
                             ? "bg-green-500"
                             : orderItem?.orderStatus === "rejected"
                             ? "bg-red-600"
                             : "bg-black"
                         }`}
                       >
-                        {orderItem?.orderStatus}
+                        {getStatusLabel(orderItem?.orderStatus)}
                       </Badge>
                     </TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
+                    <TableCell>
+                      {formatNumberWithSeparator(orderItem?.totalAmount)}đ
+                    </TableCell>
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}
@@ -90,7 +118,7 @@ function ShoppingOrders() {
                             handleFetchOrderDetails(orderItem?._id)
                           }
                         >
-                          View Details
+                          Xem chi tiết
                         </Button>
                         <ShoppingOrderDetailsView orderDetails={orderDetails} />
                       </Dialog>

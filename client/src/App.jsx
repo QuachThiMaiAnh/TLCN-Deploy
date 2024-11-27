@@ -19,36 +19,36 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
-import AdminUsers from "./pages/admin-view/users";
-import AdminBrands from "./pages/admin-view/brand";
-import AdminCategories from "./pages/admin-view/categories";
+import PaypalReturnPage from "./pages/shopping-view/paypal-return";
+import PaymentSuccessPage from "./pages/shopping-view/payment-success";
+import SearchProducts from "./pages/shopping-view/search";
 
 function App() {
-  /**
-   * useSelector là một hook trong React-Redux cho phép  truy cập vào state của Redux Store trong các component React.
-   */
   const { user, isAuthenticated, isLoading } = useSelector(
     (state) => state.auth
   );
-
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  // Sử dụng để hiển thị chỗ giữ chỗ trong khi nội dung đang tải.
-  if (isLoading) {
-    return <Skeleton className="w-full bg-black h-full" />;
-  }
+  if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+
+  console.log(isLoading, user);
 
   return (
-    <div className="flex flex-col overflow-hidden bg-white ">
-      {/* Commom component */}
-      {/* Định tuyến các trang của website */}
+    <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
-        {/* trang xác thực người dùng */}
-
+        <Route
+          path="/"
+          element={
+            <CheckAuth
+              isAuthenticated={isAuthenticated}
+              user={user}
+            ></CheckAuth>
+          }
+        />
         <Route
           path="/auth"
           element={
@@ -70,11 +70,8 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          <Route path="brands" element={<AdminBrands />} />
-          <Route path="categories" element={<AdminCategories />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
-          <Route path="users" element={<AdminUsers />} />
         </Route>
         <Route
           path="/shop"
@@ -84,11 +81,22 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="*" element={<NotFound />} />
-          <Route path="home" element={<ShoppingHome />} />
-          <Route path="listing" element={<ShoppingListing />} />
+          {/* <Route path="home" element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} /> */}
           <Route path="checkout" element={<ShoppingCheckout />} />
           <Route path="account" element={<ShoppingAccount />} />
+          <Route path="paypal-return" element={<PaypalReturnPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="search" element={<SearchProducts />} />
+        </Route>
+        <Route path="/shop" element={<ShoppingLayout />}>
+          <Route path="home" element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} />
+          {/* <Route path="checkout" element={<ShoppingCheckout />} />
+          <Route path="account" element={<ShoppingAccount />} />
+          <Route path="paypal-return" element={<PaypalReturnPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} /> */}
+          {/* <Route path="search" element={<SearchProducts />} /> */}
         </Route>
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />

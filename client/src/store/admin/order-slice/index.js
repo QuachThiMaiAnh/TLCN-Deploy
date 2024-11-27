@@ -1,19 +1,39 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// const initialState = {
+//   orderList: [],
+//   orderDetails: null,
+// };
+
+// export const getAllOrdersForAdmin = createAsyncThunk(
+//   "/order/getAllOrdersForAdmin",
+//   async () => {
+//     const response = await axios.get(
+//       `http://localhost:5000/api/admin/orders/get`
+//     );
+
+//     return response.data;
+//   }
+// );
+
 const initialState = {
   orderList: [],
   orderDetails: null,
+  totalCount: 0, // Tổng số đơn hàng
+  currentPage: 1, // Trang hiện tại
+  pageSize: 10, // Số lượng đơn hàng mỗi trang
+  isLoading: false,
 };
 
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
-  async () => {
+  async ({ page, pageSize }) => {
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get`
+      `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}`
     );
 
-    return response.data;
+    return response.data; // Trả về cả orders và totalCount
   }
 );
 
@@ -60,6 +80,8 @@ const adminOrderSlice = createSlice({
       .addCase(getAllOrdersForAdmin.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orderList = action.payload.data;
+        state.totalCount = action.payload.totalCount; // Cập nhật tổng số bản ghi
+        console.log(action.payload);
       })
       .addCase(getAllOrdersForAdmin.rejected, (state) => {
         state.isLoading = false;

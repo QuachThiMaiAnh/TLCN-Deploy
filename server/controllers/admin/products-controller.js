@@ -78,16 +78,49 @@ const addProduct = async (req, res) => {
 
 //fetch all products
 
+// const fetchAllProducts = async (req, res) => {
+//   try {
+//     //  find({}) là phương thức được gọi để lấy tất cả các tài liệu (documents) trong bộ sưu tập (collection)
+//     const listOfProducts = await Product.find({});
+//     res.status(200).json({
+//       success: true,
+//       data: listOfProducts,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     res.status(500).json({
+//       success: false,
+//       message: "Đã xảy ra lỗi nào đó",
+//     });
+//   }
+// };
 const fetchAllProducts = async (req, res) => {
   try {
-    //  find({}) là phương thức được gọi để lấy tất cả các tài liệu (documents) trong bộ sưu tập (collection)
-    const listOfProducts = await Product.find({});
+    // Lấy thông tin phân trang từ query params
+    const page = parseInt(req.query.page) || 1; // Trang hiện tại (mặc định là 1)
+    const pageSize = parseInt(req.query.pageSize) || 10; // Số sản phẩm mỗi trang (mặc định là 10)
+
+    // Tính toán bỏ qua và lấy dữ liệu
+    const skip = (page - 1) * pageSize;
+
+    // Giả sử bạn sử dụng Mongoose để truy vấn
+    const products = await Product.find() // Tìm tất cả sản phẩm
+      .skip(skip) // Bỏ qua số lượng sản phẩm dựa vào trang hiện tại
+      .limit(pageSize); // Lấy số sản phẩm theo kích thước trang
+
+    // Tính tổng số sản phẩm
+    const totalProducts = await Product.countDocuments();
+
     res.status(200).json({
       success: true,
-      data: listOfProducts,
+      data: products,
+      totalProducts, // Tổng số sản phẩm
+      currentPage: page, // Trang hiện tại
+      totalPages: Math.ceil(totalProducts / pageSize), // Tổng số trang
+      pageSize, // Số sản phẩm mỗi trang
     });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(500).json({
       success: false,
       message: "Đã xảy ra lỗi nào đó",

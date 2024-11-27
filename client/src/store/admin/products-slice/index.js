@@ -1,9 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// const initialState = {
+//   isLoading: false,
+//   productList: [],
+//   product: [],
+//   error: null,
+// };
+
 const initialState = {
   isLoading: false,
   productList: [],
+  totalPages: 0,
+  currentPage: 1,
+  totalCount: 0,
   product: [],
   error: null,
 };
@@ -25,13 +35,24 @@ export const addNewProduct = createAsyncThunk(
   }
 );
 
+// export const fetchAllProducts = createAsyncThunk(
+//   "/products/fetchAllProducts",
+//   async () => {
+//     const result = await axios.get(
+//       "http://localhost:5000/api/admin/products/get"
+//     );
+
+//     return result?.data;
+//   }
+// );
+
+// Thêm phân trang vào fetchAllProducts
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async () => {
+  async ({ page = 1, pageSize = 10 }) => {
     const result = await axios.get(
-      "http://localhost:5000/api/admin/products/get"
+      `http://localhost:5000/api/admin/products/get?page=${page}&pageSize=${pageSize}`
     );
-
     return result?.data;
   }
 );
@@ -74,9 +95,16 @@ const AdminProductsSlice = createSlice({
       .addCase(fetchAllProducts.pending, (state) => {
         state.isLoading = true;
       })
+      // .addCase(fetchAllProducts.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.productList = action.payload.data;
+      // })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.productList = action.payload.data;
+        state.totalPages = action.payload.totalPages; // Lưu tổng số trang
+        state.currentPage = action.payload.currentPage; // Lưu trang hiện tại
+        state.totalCount = action.payload.totalProducts; // Lưu tổng số sản phẩm
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.isLoading = false;

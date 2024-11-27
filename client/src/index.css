@@ -82,5 +82,27 @@ html {
 }
 
 .text-gradient {
-  @apply text-2xl font-extrabold bg-gradient-to-r bg-gradient-text bg-clip-text text-transparent;
+  @apply text-2xl font-extrabold bg-gradient-to-l bg-gradient-text bg-clip-text text-transparent;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(-100%); /* Bắt đầu từ ngoài khung nhìn bên trái */
+  }
+  100% {
+    transform: translateX(500%); /* Kết thúc ngoài khung nhìn bên phải */
+  }
+}
+
+.animate-marquee {
+  position: relative;
+  width: 100%; /* Khung chứa toàn bộ nội dung */
+  overflow: hidden; /* Ẩn phần tử ngoài khung nhìn */
+  white-space: nowrap; /* Không ngắt dòng */
+}
+
+.animate-marquee-content {
+  display: inline-flex; /* Đảm bảo icon và text nằm cùng nhau */
+  align-items: end; /* Căn giữa dọc icon và text */
+  gap: 0.5rem; /* Khoảng cách giữa icon và text */
+  animation: marquee 20s linear infinite; /* Animation cho cả container */
 }

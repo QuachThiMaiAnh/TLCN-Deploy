@@ -5,7 +5,13 @@ const addToCart = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
 
-    if (!userId || !productId || quantity <= 0) {
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Người dùng chưa đăng nhập! ",
+      });
+    }
+    if (!productId || quantity <= 0) {
       return res.status(400).json({
         success: false,
         message: "Dữ liệu được cung cấp không hợp lệ!",

@@ -1,5 +1,5 @@
 import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter } from "../ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Label } from "../ui/label";
 
 function AddressCard({
@@ -16,18 +16,41 @@ function AddressCard({
           ? () => setCurrentSelectedAddress(addressInfo)
           : null
       }
-      className={`cursor-pointer border-red-700 ${
+      // Địa chỉ đc chọn thì...
+      className={`cursor-pointer  ${
         selectedId?._id === addressInfo?._id
-          ? "border-red-900 border-[4px]"
+          ? "border-gray-900 border-[3px] shadow-md shadow-slate-600"
           : "border-black"
       }`}
     >
       <CardContent className="grid p-4 gap-4">
-        <Label>Địa chỉ: {addressInfo?.address}</Label>
-        <Label>Thành phố: {addressInfo?.city}</Label>
-        <Label>Pincode: {addressInfo?.pincode}</Label>
-        <Label>Số điện thoại: {addressInfo?.phone}</Label>
-        <Label>Ghi chú: {addressInfo?.notes}</Label>
+        <p
+          className={`${
+            selectedId?._id === addressInfo?._id
+              ? "text-blue-400 font-bold text-center "
+              : "hidden"
+          }`}
+        >
+          ~ Bạn đã chọn địa chỉ giao hàng này ~
+        </p>
+        <Label>
+          <span className="font-bold">Địa chỉ:</span> {addressInfo?.address}
+        </Label>
+        <Label>
+          <span className="font-bold">Thành phố/ Tỉnh:</span>{" "}
+          {addressInfo?.city}
+        </Label>
+        <Label>
+          <span className="font-bold">Pincode: </span>
+          {addressInfo?.pincode}
+        </Label>
+        <Label>
+          <span className="font-bold">Số điện thoại:</span> {addressInfo?.phone}
+        </Label>
+        <Label>
+          <span className="font-bold">Ghi chú: </span>
+          {addressInfo?.notes}
+        </Label>
       </CardContent>
       <CardFooter className="p-3 flex justify-between">
         <Button onClick={() => handleEditAddress(addressInfo)}>Sửa</Button>

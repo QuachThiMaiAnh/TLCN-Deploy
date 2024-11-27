@@ -20,6 +20,8 @@ import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import ArrowLeftIcon from "@/components/common/ArrowLeftIcon";
+import ArrowRightIcon from "@/components/common/ArrowRightIcon";
 
 function createSearchParamsHelper(filterParams) {
   const queryParams = [];
@@ -52,8 +54,11 @@ function createSearchParamsHelper(filterParams) {
 }
 
 function ShoppingListing() {
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+  const [pageSize, setPageSize] = useState(8); // Số sản phẩm trên mỗi trang
   const dispatch = useDispatch();
-  const { productList, productDetails } = useSelector(
+  const { productList, productDetails, totalCount } = useSelector(
     (state) => state.shopProducts
   );
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -65,6 +70,18 @@ function ShoppingListing() {
   const { toast } = useToast();
 
   const categorySearchParam = searchParams.get("category");
+
+  function goToNextPage() {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  }
+
+  function goToPreviousPage() {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  }
 
   function handleSort(value) {
     setSort(value);
@@ -153,6 +170,7 @@ function ShoppingListing() {
     setSort("price-lowtohigh");
     setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, []);
+
   useEffect(() => {
     setSort("price-lowtohigh");
     setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
@@ -164,21 +182,32 @@ function ShoppingListing() {
       const createQueryString = createSearchParamsHelper(filters);
       setSearchParams(new URLSearchParams(createQueryString));
     }
+    setCurrentPage(1);
   }, [filters]);
 
   // lấy toàn bộ sản phẩm ( có lọc + sắp xếp)
   useEffect(() => {
     if (filters !== null && sort !== null)
       dispatch(
-        fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
-      );
-  }, [dispatch, sort, filters]);
+        fetchAllFilteredProducts({
+          filterParams: filters,
+          sortParams: sort,
+          page: currentPage,
+          pageSize,
+        })
+      ).then((response) => {
+        // Kiểm tra xem API có trả về totalPages không
+        if (response?.payload?.totalPages) {
+          setTotalPages(response.payload.totalPages);
+        }
+      });
+  }, [dispatch, filters, sort, currentPage, pageSize]);
 
   useEffect(() => {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
-  // console.log(productList, "productList");
+  console.log(productList, "productList");
   // console.log(filters);
   // console.log(productDetails);
 
@@ -193,7 +222,7 @@ function ShoppingListing() {
           <h2 className="text-lg font-extrabold">Danh sách sản phẩm</h2>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground">
-              Bao gồm {productList?.length} sản phẩm
+              Bao gồm {productList?.length} /{totalCount} sản phẩm
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -236,7 +265,33 @@ function ShoppingListing() {
               ))
             : null}
         </div>
+
+        {/* Hiện thị phân trang */}
+        <div className="flex justify-center items-center mt-4 gap-4 ">
+          <button
+            className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+            disabled={currentPage === 1}
+            onClick={goToPreviousPage}
+          >
+            {/* Mũi tên trái */}
+            <ArrowLeftIcon className="w-6 h-6 " />
+          </button>
+
+          <span className="font-bold">
+            Trang <span>{currentPage}</span> / {totalPages}
+          </span>
+
+          <button
+            className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+            disabled={currentPage === totalPages}
+            onClick={goToNextPage}
+          >
+            {/* Mũi tên phải */}
+            <ArrowRightIcon className="w-6 h-6" />
+          </button>
+        </div>
       </div>
+
       <ProductDetailsDialog
         // mở dialog khi open = true
         open={openDetailsDialog}

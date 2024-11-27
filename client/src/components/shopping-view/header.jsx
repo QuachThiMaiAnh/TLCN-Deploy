@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 import homeIcon from "../../assets/icons/Home.png";
+
 function MenuItems() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,7 +42,6 @@ function MenuItems() {
         : null;
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
-    console.log();
 
     location.pathname.includes("listing") && currentFilter !== null
       ? setSearchParams(
@@ -52,15 +52,28 @@ function MenuItems() {
 
   return (
     <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
-      {shoppingViewHeaderMenuItems.map((menuItem) => (
-        <Label
-          onClick={() => handleNavigate(menuItem)}
-          className="text-md font-bold cursor-pointer  "
-          key={menuItem.id}
-        >
-          {menuItem.label}
-        </Label>
-      ))}
+      {shoppingViewHeaderMenuItems.map((menuItem) => {
+        // Kiểm tra trạng thái active
+        const isActive =
+          location.pathname === menuItem.path &&
+          (menuItem.id === "products"
+            ? !searchParams.has("category") // "Sản phẩm" active nếu không có category
+            : searchParams.get("category") === menuItem.id); // Kiểm tra category cho danh mục con
+
+        return (
+          <Label
+            onClick={() => handleNavigate(menuItem)}
+            className={`text-md font-bold cursor-pointer ${
+              isActive
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-700"
+            } hover:text-primary hover:border-b-2 hover:border-primary`}
+            key={menuItem.id}
+          >
+            {menuItem.label}
+          </Label>
+        );
+      })}
     </nav>
   );
 }
@@ -79,7 +92,7 @@ function HeaderRightContent() {
   useEffect(() => {
     dispatch(fetchCartItems(user?.id));
   }, [dispatch]);
-  console.log(cartItems);
+  console.log(cartItems, "cartItems");
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       {/* xử lý giỏ hàng */}

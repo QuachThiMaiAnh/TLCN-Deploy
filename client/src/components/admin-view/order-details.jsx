@@ -10,19 +10,44 @@ import {
   getOrderDetailsForAdmin,
   updateOrderStatus,
 } from "@/store/admin/order-slice";
-import { useToast } from "../ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const initialFormData = {
   status: "",
 };
 
-function AdminOrderDetailsView({ orderDetails }) {
+function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
   const [formData, setFormData] = useState(initialFormData);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  console.log(orderDetails, "orderDetailsorderDetails");
+  // console.log(orderDetails, "orderDetails");
+  // Hàm định dạng số với dấu chấm ngăn cách
+  function formatNumberWithSeparator(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  const getStatusPaymentLabel = (id) => {
+    const options = [
+      { id: "pending", label: "Chờ xử lý" },
+      { id: "paid", label: "Đã thanh toán" },
+    ];
+    const status = options.find((option) => option.id === id);
+    return status ? status.label : "Không xác định"; // Trả về mặc định nếu không tìm thấy
+  };
+
+  const getStatusLabel = (id) => {
+    const options = [
+      { id: "pending", label: "Chờ xử lý" },
+      { id: "confirmed", label: "Đã xác nhận" },
+      { id: "inShipping", label: "Đang vận chuyển" },
+      { id: "delivered", label: "Đã giao hàng" },
+      { id: "rejected", label: "Đã bị từ chối" },
+    ];
+    const status = options.find((option) => option.id === id);
+    return status ? status.label : "Không xác định"; // Trả về mặc định nếu không tìm thấy
+  };
 
   function handleUpdateStatus(event) {
     event.preventDefault();
@@ -33,7 +58,7 @@ function AdminOrderDetailsView({ orderDetails }) {
     ).then((data) => {
       if (data?.payload?.success) {
         dispatch(getOrderDetailsForAdmin(orderDetails?._id));
-        dispatch(getAllOrdersForAdmin());
+        dispatch(getAllOrdersForAdmin({ page: currentPage, pageSize }));
         setFormData(initialFormData);
         toast({
           title: data?.payload?.message,
@@ -43,42 +68,52 @@ function AdminOrderDetailsView({ orderDetails }) {
   }
 
   return (
-    <DialogContent className="sm:max-w-[600px]">
+    <DialogContent className="sm:max-w-[600px] overflow-auto h-full">
       <div className="grid gap-6">
         <div className="grid gap-2">
           <div className="flex mt-6 items-center justify-between">
-            <p className="font-medium">Order ID</p>
-            <Label>{orderDetails?._id}</Label>
+            <p className="font-bold">Id đơn hàng</p>
+            <Label className="text-red-500">{orderDetails?._id}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
+            <p className="font-bold">Ngày đặt hàng</p>
+            <Label>
+              {new Date(orderDetails?.orderDate).toLocaleDateString("en-GB")}
+            </Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Price</p>
-            <Label>${orderDetails?.totalAmount}</Label>
+            <p className="font-bold">Tổng thanh toán</p>
+            <Label>{orderDetails?.totalAmount}đ</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment method</p>
+            <p className="font-bold">Phương thức thanh toán</p>
             <Label>{orderDetails?.paymentMethod}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment Status</p>
-            <Label>{orderDetails?.paymentStatus}</Label>
+            <p className="font-bold">Trạng thánh thanh toán</p>
+            <Label>
+              <Badge className="py-1 px-3 bg-white border-black shadow-inner shadow-black text-black hover:bg-white">
+                {getStatusPaymentLabel(orderDetails?.paymentStatus)}
+              </Badge>
+            </Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Status</p>
+            <p className="font-bold">Trạng thái đơn hàng</p>
             <Label>
               <Badge
                 className={`py-1 px-3 ${
-                  orderDetails?.orderStatus === "confirmed"
+                  orderDetails?.orderStatus === "pending"
+                    ? "bg-blue-500"
+                    : orderDetails?.orderStatus === "confirmed"
+                    ? "bg-purple-700"
+                    : orderDetails?.orderStatus === "inShipping"
                     ? "bg-green-500"
                     : orderDetails?.orderStatus === "rejected"
                     ? "bg-red-600"
                     : "bg-black"
                 }`}
               >
-                {orderDetails?.orderStatus}
+                {getStatusLabel(orderDetails?.orderStatus)}
               </Badge>
             </Label>
           </div>
@@ -86,53 +121,100 @@ function AdminOrderDetailsView({ orderDetails }) {
         <Separator />
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <div className="font-medium">Order Details</div>
-            <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
-                    <li className="flex items-center justify-between">
-                      <span>Title: {item.title}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ${item.price}</span>
-                    </li>
+            <div className="font-bold">Chi tiết đơn hàng:</div>
+            <table className="table-auto w-full border-collapse border border-blue-300">
+              <thead>
+                <tr className="bg-blue-100">
+                  <th className="border border-blue-300 px-4 py-2 text-left">
+                    Tên sản phẩm
+                  </th>
+                  <th className="border border-blue-300 px-4 py-2 text-left">
+                    Số lượng
+                  </th>
+                  <th className="border border-blue-300 px-4 py-2 text-left">
+                    Giá
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {orderDetails?.cartItems &&
+                orderDetails?.cartItems.length > 0 ? (
+                  orderDetails?.cartItems.map((item, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-2">
+                        {item.title}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {item.quantity}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {formatNumberWithSeparator(item.price)}đ
+                      </td>
+                    </tr>
                   ))
-                : null}
-            </ul>
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="3"
+                      className="border border-gray-300 px-4 py-2 text-center"
+                    >
+                      Giỏ hàng trống
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+        <Separator />
         <div className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="font-medium">Shipping Info</div>
-            <div className="grid gap-0.5 text-muted-foreground">
-              <span>{user.userName}</span>
-              <span>{orderDetails?.addressInfo?.address}</span>
-              <span>{orderDetails?.addressInfo?.city}</span>
-              <span>{orderDetails?.addressInfo?.pincode}</span>
-              <span>{orderDetails?.addressInfo?.phone}</span>
-              <span>{orderDetails?.addressInfo?.notes}</span>
+          <div className="grid gap-4">
+            <div className="font-bold">Thông tin vận chuyển: </div>
+            <div className="grid gap-4 ">
+              <Label>
+                <span className="font-bold ">Địa chỉ:</span>{" "}
+                {orderDetails?.addressInfo?.address}
+              </Label>
+              <Label>
+                <span className="font-bold ">Thành phố/ Tỉnh:</span>{" "}
+                {orderDetails?.addressInfo?.city}
+              </Label>
+              <Label>
+                <span className="font-bold ">Pincode: </span>
+                {orderDetails?.addressInfo?.pincode}
+              </Label>
+              <Label>
+                <span className="font-bold ">Số điện thoại:</span>{" "}
+                {orderDetails?.addressInfo?.phone}
+              </Label>
+              <Label>
+                <span className="font-bold ">Ghi chú: </span>
+                {orderDetails?.addressInfo?.notes}
+              </Label>
             </div>
           </div>
         </div>
-
+        <Separator />
         <div>
+          <p className="font-bold">Cập nhật trạng thái đơn hàng:</p>
           <CommonForm
             formControls={[
               {
-                label: "Order Status",
                 name: "status",
                 componentType: "select",
                 options: [
-                  { id: "pending", label: "Pending" },
-                  { id: "inProcess", label: "In Process" },
-                  { id: "inShipping", label: "In Shipping" },
-                  { id: "delivered", label: "Delivered" },
-                  { id: "rejected", label: "Rejected" },
+                  { id: "pending", label: "Chờ xử lý" },
+                  { id: "inProcess", label: "Đang xử lý" },
+                  { id: "inShipping", label: "Đang vận chuyển" },
+                  { id: "delivered", label: "Đã giao hàng" },
+                  { id: "rejected", label: "Đã bị từ chối" },
                 ],
+                required: false,
               },
             ]}
             formData={formData}
             setFormData={setFormData}
-            buttonText={"Update Order Status"}
+            buttonText={"Cập nhật lại trạng thái đơn hàng !"}
             onSubmit={handleUpdateStatus}
           />
         </div>
