@@ -1,154 +1,226 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// Initial state
 const initialState = {
   isAuthenticated: false,
   isLoading: true,
   user: null,
+  forgotPasswordInfo: null,
+  forgotPasswordError: null,
+  error: null, // Thêm trường để lưu lỗi chung
 };
-// Gọi All API trong file này!!
 
 // API đăng ký tài khoản
-/**
- * createAsyncThunk hỗ trợ việc tạo và quản lý các trạng thái như
- * pending, fulfilled, và rejected để dễ dàng theo dõi trạng thái của hành động.
- */
-/**
- * createAsyncThunk tạo ra một thunk action bất đồng bộ,
- * giúp xử lý các yêu cầu đến server một cách dễ dàng và tự động cập nhật trạng thái Redux
- */
 export const registerUser = createAsyncThunk(
   "/auth/register",
-
-  async (formData) => {
-    // axios.post() thực hiện một yêu cầu POST đến endpoint "http://localhost:5000/api/auth/register" để đăng ký tài khoản.
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/register",
-      formData,
-      {
-        /**
-         * withCredentials: true là cần thiết khi làm việc với các tài nguyên yêu cầu xác thực hoặc bảo mật,
-         * nhất là trong các ứng dụng dùng token hoặc cookie.
-         */
-        withCredentials: true,
-      }
-    );
-
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        formData,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Đã xảy ra lỗi khi đăng ký."
+      );
+    }
   }
 );
 
+// API đăng nhập
 export const loginUser = createAsyncThunk(
   "/auth/login",
-
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/login",
-      formData,
-      {
-        withCredentials: true,
-      }
-    );
-
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Đã xảy ra lỗi khi đăng nhập."
+      );
+    }
   }
 );
 
+// API đăng xuất
 export const logoutUser = createAsyncThunk(
   "/auth/logout",
-
-  async () => {
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/logout",
-      {},
-      {
-        withCredentials: true,
-      }
-    );
-
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Đã xảy ra lỗi khi đăng xuất."
+      );
+    }
   }
 );
 
+// API kiểm tra xác thực
 export const checkAuth = createAsyncThunk(
   "/auth/checkauth",
-
-  async () => {
-    const response = await axios.get(
-      "http://localhost:5000/api/auth/check-auth",
-      {
-        withCredentials: true,
-        headers: {
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate, proxy-revalidate",
-        },
-      }
-    );
-
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/auth/check-auth",
+        {
+          withCredentials: true,
+          headers: {
+            "Cache-Control":
+              "no-store, no-cache, must-revalidate, proxy-revalidate",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Không thể xác thực người dùng."
+      );
+    }
   }
 );
 
-// triển khai các trạng thái trong reducer
-// Khi  được gọi và thành công, kết quả này sẽ được chuyển tới reducer và cập nhật vào Redux store,
-// giúp ứng dụng có thể dễ dàng sử dụng dữ liệu từ phản hồi của server.
+// API gửi email quên mật khẩu
+export const forgotPassword = createAsyncThunk(
+  "/auth/forgot-password",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/forgot-password",
+        { email },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Đã xảy ra lỗi khi gửi email."
+      );
+    }
+  }
+);
+
+// API đặt lại mật khẩu
+export const resetPassword = createAsyncThunk(
+  "/auth/reset-password",
+  async ({ token, newPassword, confirmPassword }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/auth/reset-password/${token}`,
+        { newPassword, confirmPassword },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Cập nhật mật khẩu thất bại."
+      );
+    }
+  }
+);
+
+// Slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action) => {},
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
+      // Đăng ký
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.error = action.payload;
       })
+      // Đăng nhập
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log(action);
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
+        state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.error = action.payload;
       })
+      // Xác thực người dùng
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
+        state.error = null;
       })
       .addCase(checkAuth.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.error = action.payload;
       })
-      .addCase(logoutUser.fulfilled, (state, action) => {
+      // Quên mật khẩu
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.forgotPasswordError = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = null;
-        state.isAuthenticated = false;
+        state.forgotPasswordInfo = action.payload;
+        state.forgotPasswordError = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.forgotPasswordError = action.payload;
+      })
+      // Đặt lại mật khẩu
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
 
 export default authSlice.reducer;
-// Cập nhật lại trạng thái của state
-// Action: chứa thông tin về hành động được dispatch, bao gồm type (loại hành động) và payload (dữ liệu mà hành động mang theo).
 export const { setUser } = authSlice.actions;

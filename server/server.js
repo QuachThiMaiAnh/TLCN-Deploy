@@ -1,35 +1,37 @@
-require("dotenv").config();
+require("dotenv").config(); // Nạp biến môi trường từ file .env
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-const authRouter = require("./routes/auth/auth-routes");
-const adminProductsRouter = require("./routes/admin/products-routes");
-const adminOrderRouter = require("./routes/admin/order-routes");
+const {
+  authRouter,
+  adminProductsRouter,
+  adminOrderRouter,
+  shopProductsRouter,
+  shopCartRouter,
+  shopAddressRouter,
+  shopOrderRouter,
+  shopSearchRouter,
+  shopReviewRouter,
+  commonFeatureRouter,
+} = require("./routes");
 
-const shopProductsRouter = require("./routes/shop/products-routes");
-const shopCartRouter = require("./routes/shop/cart-routes");
-const shopAddressRouter = require("./routes/shop/address-routes");
-const shopOrderRouter = require("./routes/shop/order-routes");
-const shopSearchRouter = require("./routes/shop/search-routes");
-const shopReviewRouter = require("./routes/shop/review-routes");
-
-const commonFeatureRouter = require("./routes/common/feature-routes");
-
-//create a database connection -> u can also
-//create a separate file for this and then import/use that file here
+// Kết nối MongoDB sử dụng biến môi trường
 mongoose
-  .connect("mongodb+srv://maianhs1707:maianh@cluster0.obly1.mongodb.net/")
+  .connect(process.env.DB_CONNECTION_STRING)
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
+
 const app = express();
-//thiết lập biến PORT để xác định cổng mà ứng dụng Node.js sẽ chạy
+
+// Thiết lập cổng từ biến môi trường
 const PORT = process.env.PORT || 5000;
 
+// Cấu hình CORS sử dụng biến môi trường
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL, // Đọc URL từ biến môi trường
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
@@ -48,6 +50,7 @@ app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
 
 // Route chính
 app.use("/api/auth", authRouter);
+
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 

@@ -1,4 +1,5 @@
 import CommonForm from "@/components/common/form";
+import { Button } from "@/components/ui/button";
 import { loginFormControls } from "@/config";
 import { useToast } from "@/hooks/use-toast";
 import { loginUser } from "@/store/auth-slice";
@@ -6,6 +7,7 @@ import { data } from "autoprefixer";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
   email: "",
@@ -16,6 +18,12 @@ function AuthLogin() {
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const navigate = useNavigate(); // Hook navigate
+
+  // Hàm điều hướng đến trang quên mật khẩu
+  const handleForgotPassword = () => {
+    navigate("/auth/forgot-password");
+  };
 
   function onSubmit(event) {
     event.preventDefault();
@@ -57,6 +65,13 @@ function AuthLogin() {
         setFormData={setFormData}
         onSubmit={onSubmit}
       />
+      {/* Nút điều hướng đến trang quên mật khẩu */}
+      <div className="flex font-bold items-center justify-center gap-4 p-4 border-[1px] border-gray-300 rounded-md mt-2">
+        <p>Bạn quên mật khẩu?</p>
+        <Button variant="outline" onClick={handleForgotPassword}>
+          Quên mật khẩu
+        </Button>
+      </div>
     </div>
   );
 }

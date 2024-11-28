@@ -18,6 +18,13 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    colors: [
+      {
+        colorName: String, // Tên màu
+        imageUrl: String, // Ảnh minh họa cho màu sắc
+      },
+    ],
+    sizes: [String], // Danh sách các kích thước (ví dụ: "39", "40", "41")
   },
   { timestamps: true }
 );

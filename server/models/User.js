@@ -30,7 +30,16 @@ const UserSchema = new mongoose.Schema({
     ],
     default: "Pending Verification",
   },
+  resetPasswordToken: {
+    type: String, // Lưu mã token reset mật khẩu
+  },
+  resetPasswordExpire: {
+    type: Date, // Lưu thời gian hết hạn của token
+  },
 });
+
+// Tự động thêm thời gian tạo và cập nhật vào mỗi bản ghi
+UserSchema.set("timestamps", true);
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

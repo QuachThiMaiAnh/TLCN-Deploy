@@ -68,55 +68,120 @@ function AdminProducts() {
     }
   }
 
+  // function onSubmit(event) {
+  //   event.preventDefault();
+
+  //   currentEditedId !== null
+  //     ? dispatch(
+  //         editProduct({
+  //           id: currentEditedId,
+  //           formData,
+  //         })
+  //       ).then((data) => {
+  //         console.log(data, "Sửa thông tin sản phẩm");
+  //         if (data?.payload?.success) {
+  //           toast({
+  //             title: "Sửa thông tin sản phẩm thành công!",
+  //           });
+  //           dispatch(fetchAllProducts({ page: currentPage, pageSize }));
+  //           setFormData(initialFormData);
+  //           setOpenCreateProductsDialog(false);
+  //           setCurrentEditedId(null);
+  //         } else {
+  //           toast({
+  //             title:
+  //               "Sửa sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+  //             variant: "destructive",
+  //           });
+  //         }
+  //       })
+  //     : dispatch(
+  //         addNewProduct({
+  //           ...formData,
+  //           images: uploadedImageUrls,
+  //         })
+  //       ).then((data) => {
+  //         if (data?.payload?.success) {
+  //           dispatch(fetchAllProducts({ page: currentPage, pageSize }));
+  //           setOpenCreateProductsDialog(false);
+  //           setImageFiles(null);
+  //           setFormData(initialFormData);
+  //           toast({
+  //             title: "Thêm sản phẩm mới thành công!",
+  //           });
+  //         } else {
+  //           toast({
+  //             title:
+  //               "Thêm sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+  //             variant: "destructive",
+  //           });
+  //         }
+  //       });
+  // }
+
   function onSubmit(event) {
     event.preventDefault();
 
-    currentEditedId !== null
-      ? dispatch(
-          editProduct({
-            id: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          console.log(data, "Sửa thông tin sản phẩm");
-          if (data?.payload?.success) {
-            toast({
-              title: "Sửa thông tin sản phẩm thành công!",
-            });
-            dispatch(fetchAllProducts({ page: currentPage, pageSize }));
-            setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
-            setCurrentEditedId(null);
-          } else {
-            toast({
-              title:
-                "Sửa sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
-              variant: "destructive",
-            });
-          }
+    // Kiểm tra nếu không có URL ảnh nào
+    if (!uploadedImageUrls || uploadedImageUrls.length === 0) {
+      toast({
+        title: "Vui lòng thêm ít nhất một hình ảnh cho sản phẩm!",
+        variant: "destructive",
+      });
+      return;
+    }
+    console.log(uploadedImageUrls, "uploadedImageUrls");
+    // Nếu đang chỉnh sửa sản phẩm
+    if (currentEditedId !== null) {
+      dispatch(
+        editProduct({
+          id: currentEditedId,
+          formData,
         })
-      : dispatch(
-          addNewProduct({
-            ...formData,
-            images: uploadedImageUrls,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts({ page: currentPage, pageSize }));
-            setOpenCreateProductsDialog(false);
-            setImageFiles(null);
-            setFormData(initialFormData);
-            toast({
-              title: "Thêm sản phẩm mới thành công!",
-            });
-          } else {
-            toast({
-              title:
-                "Thêm sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
-              variant: "destructive",
-            });
-          }
-        });
+      ).then((data) => {
+        if (data?.payload?.success) {
+          toast({
+            title: "Sửa thông tin sản phẩm thành công!",
+          });
+          dispatch(fetchAllProducts({ page: currentPage, pageSize }));
+          setFormData(initialFormData);
+          setOpenCreateProductsDialog(false);
+          setCurrentEditedId(null);
+          setUploadedImageUrls([]); // Reset danh sách ảnh
+        } else {
+          toast({
+            title:
+              "Sửa sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+            variant: "destructive",
+          });
+        }
+      });
+    } else {
+      // Nếu thêm mới sản phẩm
+      dispatch(
+        addNewProduct({
+          ...formData,
+          images: uploadedImageUrls, // Gửi danh sách ảnh đã tải lên
+        })
+      ).then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllProducts({ page: currentPage, pageSize }));
+          setOpenCreateProductsDialog(false);
+          setImageFiles(null);
+          setFormData(initialFormData);
+          setUploadedImageUrls([]); // Reset danh sách ảnh
+          toast({
+            title: "Thêm sản phẩm mới thành công!",
+          });
+        } else {
+          toast({
+            title:
+              "Thêm sản phẩm không thành công do giá bán nhỏ hơn giá khuyến mãi!",
+            variant: "destructive",
+          });
+        }
+      });
+    }
   }
 
   function handleDelete(getCurrentProductId) {
@@ -145,6 +210,11 @@ function AdminProducts() {
     );
   }, [dispatch, currentPage, pageSize]);
 
+  useEffect(() => {
+    setFormData({ ...formData, images: uploadedImageUrls });
+  }, [uploadedImageUrls]);
+  console.log(formData, "formData");
+
   return (
     <Fragment>
       <div className="mb-5 w-full flex justify-between items-center">
@@ -171,6 +241,8 @@ function AdminProducts() {
                 setCurrentEditedId={setCurrentEditedId}
                 product={productItem}
                 handleDelete={handleDelete}
+                setUploadedImageUrls={setUploadedImageUrls} // Thêm prop này
+                setImageFiles={setImageFiles}
               />
             ))
           : null}
@@ -218,14 +290,25 @@ function AdminProducts() {
                 : "Thêm mới sản phẩm"}
             </SheetTitle>
           </SheetHeader>
-          <ProductImageUpload
+          {/* <ProductImageUpload
             imageFiles={imageFiles}
             setImageFiles={setImageFiles}
             uploadedImageUrls={uploadedImageUrls}
             setUploadedImageUrls={setUploadedImageUrls}
             setImageLoadingState={setImageLoadingState}
             imageLoadingState={imageLoadingState}
-            isEditMode={currentEditedId !== null}
+            // isEditMode={currentEditedId !== null}
+            currentEditedId={currentEditedId}
+          /> */}
+
+          <ProductImageUpload
+            imageFiles={imageFiles}
+            setImageFiles={setImageFiles}
+            uploadedImageUrls={uploadedImageUrls} // Danh sách URL ảnh
+            setUploadedImageUrls={setUploadedImageUrls}
+            setImageLoadingState={setImageLoadingState}
+            imageLoadingState={imageLoadingState}
+            currentEditedId={currentEditedId}
           />
 
           <div className="py-6 ">

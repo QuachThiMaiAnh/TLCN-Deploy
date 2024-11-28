@@ -9,6 +9,8 @@ function AdminProductTile({
   setOpenCreateProductsDialog,
   setCurrentEditedId,
   handleDelete,
+  setUploadedImageUrls,
+  setImageFiles,
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -82,7 +84,7 @@ function AdminProductTile({
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-          <Button
+          {/* <Button
             onClick={() => {
               setOpenCreateProductsDialog(true);
               setCurrentEditedId(product?._id);
@@ -90,7 +92,19 @@ function AdminProductTile({
             }}
           >
             Sửa
+          </Button> */}
+          <Button
+            onClick={() => {
+              setOpenCreateProductsDialog(true); // Mở dialog chỉnh sửa
+              setCurrentEditedId(product?._id); // Gắn ID sản phẩm hiện tại để chỉnh sửa
+              setFormData(product); // Gắn dữ liệu sản phẩm vào form
+              setUploadedImageUrls(product?.images || []); // Hiển thị hình ảnh hiện tại
+              setImageFiles(null); // Xóa trạng thái ảnh mới (nếu có)
+            }}
+          >
+            Sửa
           </Button>
+
           <Button
             className=" hover:bg-destructive "
             onClick={() => handleDelete(product?._id)}
