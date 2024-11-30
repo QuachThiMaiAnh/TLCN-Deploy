@@ -12,7 +12,6 @@ const { upload } = require("../../helpers/cloudinary");
 
 const router = express.Router();
 
-// router.post("/upload-image", upload.single("my_file"), handleImageUpload);
 // Upload được tối đa 10 ảnh
 router.post("/upload-image", upload.array("my_files", 10), handleImageUpload);
 

@@ -72,13 +72,6 @@ export const addProductFormElements = [
       { id: "accessories", label: "Phụ kiện" },
       { id: "footwear", label: "Giày dép" },
     ],
-    // options: [
-    //   { id: "Nam", label: "Nam" },
-    //   { id: "Nữ", label: "Nữ" },
-    //   { id: "Trẻ em", label: "Trẻ em" },
-    //   { id: "Phụ kiện", label: "Phụ kiện" },
-    //   { id: "Giày dép", label: "Giày dép" },
-    // ],
   },
   {
     label: "Thương hiệu",
@@ -107,13 +100,6 @@ export const addProductFormElements = [
     type: "number",
     placeholder: "Nhập giá bán khuyễn mãi (VNĐ) - không bắt buộc nhập ",
     required: false,
-  },
-  {
-    label: "Tồn kho",
-    name: "totalStock",
-    componentType: "input",
-    type: "number",
-    placeholder: "Nhập số lượng sản phẩm tồn kho",
   },
 ];
 
