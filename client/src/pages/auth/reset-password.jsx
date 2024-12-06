@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { resetPassword } from "@/store/auth-slice";
 import { useToast } from "@/hooks/use-toast";
 // Giả sử bạn dùng Heroicons cho icon
@@ -18,14 +18,10 @@ function ResetPassword() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { error } = useSelector((state) => state.auth);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (newPassword !== confirmPassword) {
-      toast({ title: "Mật khẩu không khớp !", variant: "destructive" });
-      return;
-    }
 
     const response = await dispatch(
       resetPassword({ token, newPassword, confirmPassword })
@@ -36,9 +32,12 @@ function ResetPassword() {
       navigate("/auth/login");
     } else {
       toast({
-        title: response?.error?.message || "Có lỗi xảy ra",
+        title: error || "Có lỗi xảy ra",
         variant: "destructive",
       });
+      if (error === "Liên kết đã hết hạn! Vui lòng yêu cầu một liên kết mới!") {
+        navigate("/auth/login");
+      }
     }
   };
 

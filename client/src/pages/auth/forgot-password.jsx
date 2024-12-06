@@ -20,7 +20,9 @@ function ForgotPassword() {
 
     dispatch(forgotPassword(email)).then((data) => {
       if (data?.payload?.success) {
-        toast({ title: "Email đặt lại mật khẩu đã được gửi !" });
+        toast({
+          title: "Email đặt lại mật khẩu đã được gửi đến email của bạn !",
+        });
       } else {
         toast({ title: data?.payload?.message, variant: "destructive" });
       }

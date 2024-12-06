@@ -19,12 +19,12 @@ function ShoppingCheckout() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // console.log(currentSelectedAddress, "cartItems");
+  console.log(cartItems, "cartItems");
 
   // Tính tổng tiền đơn hàng
   const totalCartAmount =
-    cartItems && cartItems.items && cartItems.items.length > 0
-      ? cartItems.items.reduce(
+    cartItems && cartItems && cartItems.length > 0
+      ? cartItems.reduce(
           (sum, currentItem) =>
             sum +
             (currentItem?.salePrice > 0
@@ -41,7 +41,7 @@ function ShoppingCheckout() {
   }
 
   function handleCodPayment() {
-    if (!cartItems || cartItems.items?.length === 0) {
+    if (!cartItems || cartItems.length === 0) {
       toast({
         title:
           "Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm để tiếp tục!",
@@ -61,15 +61,17 @@ function ShoppingCheckout() {
     const orderData = {
       userId: user?.id,
       cartId: cartItems?._id,
-      cartItems: cartItems.items.map((singleCartItem) => ({
+      cartItems: cartItems.map((singleCartItem) => ({
         productId: singleCartItem?.productId,
         title: singleCartItem?.title,
-        images: singleCartItem?.images,
+        images: singleCartItem?.images, // Lấy ảnh theo màu sắc
         price:
           singleCartItem?.salePrice > 0
             ? singleCartItem?.salePrice
             : singleCartItem?.price,
         quantity: singleCartItem?.quantity,
+        colorId: singleCartItem?.colorId, // Mã màu sắc
+        sizeId: singleCartItem?.sizeId, // Mã kích thước
       })),
       addressInfo: {
         addressId: currentSelectedAddress?._id,
@@ -109,7 +111,7 @@ function ShoppingCheckout() {
 
   // hàm xử lý thanh toán Paypal
   function handleInitiatePaypalPayment() {
-    if (!cartItems || cartItems.items?.length === 0) {
+    if (!cartItems || cartItems.length === 0) {
       toast({
         title:
           "Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm để tiếp tục!",
@@ -129,7 +131,7 @@ function ShoppingCheckout() {
     const orderData = {
       userId: user?.id,
       cartId: cartItems?._id,
-      cartItems: cartItems.items.map((singleCartItem) => ({
+      cartItems: cartItems.map((singleCartItem) => ({
         productId: singleCartItem?.productId,
         title: singleCartItem?.title,
         images: singleCartItem?.images,
@@ -138,6 +140,8 @@ function ShoppingCheckout() {
             ? singleCartItem?.salePrice
             : singleCartItem?.price,
         quantity: singleCartItem?.quantity,
+        colorId: singleCartItem?.colorId, // Mã màu sắc
+        sizeId: singleCartItem?.sizeId, // Mã kích thước
       })),
       addressInfo: {
         addressId: currentSelectedAddress?._id,
@@ -199,8 +203,8 @@ function ShoppingCheckout() {
           </p>
 
           <div className="flex flex-col gap-4">
-            {cartItems && cartItems.items && cartItems.items.length > 0
-              ? cartItems.items.map((item) => (
+            {cartItems && cartItems && cartItems.length > 0
+              ? cartItems.map((item) => (
                   <UserCartItemsContent cartItem={item} />
                 ))
               : null}
@@ -214,6 +218,7 @@ function ShoppingCheckout() {
                 </span>
               </div>
             </div>
+
             <div className="mt-4 w-full">
               <Button onClick={handleInitiatePaypalPayment} className="w-full">
                 {isPaymentStart
@@ -221,13 +226,13 @@ function ShoppingCheckout() {
                   : "Thanh toán bằng Paypal"}
               </Button>
             </div>
-            <div className="mt-4 w-full">
+            {/* <div className="mt-4 w-full">
               <Button className="w-full">
                 {isPaymentStart
                   ? "Đang xử lý thanh toán MoMo..."
                   : "Thanh toán bằng MoMo"}
               </Button>
-            </div>
+            </div> */}
             <div className="mt-4 w-full">
               <Button onClick={handleCodPayment} className="w-full">
                 {isPaymentStart

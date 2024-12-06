@@ -47,15 +47,6 @@ function CommonForm({
       isValid = false;
     }
 
-    // Kiểm tra tất cả các trường để không được trống, ngoại trừ giá trị số 0
-    // for (const control of formControls) {
-    //   const value = formData[control.name];
-    //   if (value === null || value === undefined || value === "") {
-    //     isValid = false;
-    //     break;
-    //   }
-    // }
-
     // Check all fields, except for optional fields
     for (const control of formControls) {
       const value = formData[control.name];

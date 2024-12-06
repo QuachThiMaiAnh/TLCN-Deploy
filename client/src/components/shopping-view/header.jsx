@@ -1,6 +1,7 @@
 import { House, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
 import {
   Link,
+  Navigate,
   useLocation,
   useNavigate,
   useSearchParams,
@@ -87,12 +88,17 @@ function HeaderRightContent() {
 
   function handleLogout() {
     dispatch(logoutUser());
+    navigate("/auth/login");
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
+    if (cartItems?.userId) {
+      dispatch(fetchCartItems(user?.id));
+    }
   }, [dispatch]);
+
   console.log(cartItems, "cartItems");
+
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       {/* xử lý giỏ hàng */}
@@ -106,17 +112,16 @@ function HeaderRightContent() {
           <ShoppingCart className="w-6 h-6" />
           {/* số sản phẩm trong giỏ hàng */}
           <span className="absolute top-[-1px] right-[3px] text-xs">
-            {cartItems?.items?.length || 0}
+            {cartItems?.length || 0}
           </span>
           <span className="sr-only">Giỏ hàng</span>
         </Button>
+
         {/* hiển thị các sản phẩm có trong giỏ hàng */}
         <UserCartWrapper
           setOpenCartSheet={setOpenCartSheet}
           cartItems={
-            cartItems && cartItems.items && cartItems.items.length > 0
-              ? cartItems.items
-              : []
+            cartItems && cartItems && cartItems.length > 0 ? cartItems : []
           }
         />
       </Sheet>

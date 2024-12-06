@@ -84,15 +84,6 @@ function AdminProductTile({
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-          {/* <Button
-            onClick={() => {
-              setOpenCreateProductsDialog(true);
-              setCurrentEditedId(product?._id);
-              setFormData(product);
-            }}
-          >
-            Sửa
-          </Button> */}
           <Button
             onClick={() => {
               setOpenCreateProductsDialog(true); // Mở dialog chỉnh sửa

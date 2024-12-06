@@ -40,7 +40,7 @@ import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
-// import { getFeatureImages } from "@/store/common-slice";
+import { getFeatureImages } from "@/store/common";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: menIcon },
@@ -63,7 +63,7 @@ function ShoppingHome() {
   const { productList, productDetails } = useSelector(
     (state) => state.shopProducts
   );
-  // const { featureImageList } = useSelector((state) => state.commonFeature);
+  const { featureImageList } = useSelector((state) => state.commonFeature);
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
@@ -109,16 +109,6 @@ function ShoppingHome() {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
-  // Tạo slider tự động chuyển ảnh mỗi 5 giây.
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
-  //   }, 5000);
-
-  //   // useEffect chạy lại, xóa setInterval cũ, và thiết lập một setInterval mới để sử dụng danh sách ảnh mới.
-  //   return () => clearInterval(timer);
-  // }, [featureImageList]);
-
   // lấy thông tin sản phẩm để hiển thị lên home page
   useEffect(() => {
     dispatch(
@@ -131,49 +121,82 @@ function ShoppingHome() {
 
   // console.log(productList, "productList");
 
-  //   useEffect(() => {
-  //     dispatch(getFeatureImages());
-  //   }, [dispatch]);
+  // Tạo slider tự động chuyển ảnh mỗi 5 giây khi featureImageList thay đổi
+  useEffect(() => {
+    if (
+      featureImageList.length > 0 &&
+      featureImageList.some((item) => item.images.length > 0)
+    ) {
+      const timer = setInterval(() => {
+        setCurrentSlide(
+          (prevSlide) =>
+            (prevSlide + 1) %
+            featureImageList.flatMap((item) => item.images).length
+        );
+      }, 5000);
 
+      return () => clearInterval(timer);
+    }
+  }, [featureImageList]);
+
+  // Xử lý di chuyển qua lại các slide
+  function handlePrevSlide() {
+    setCurrentSlide(
+      (prevSlide) =>
+        (prevSlide -
+          1 +
+          featureImageList.flatMap((item) => item.images).length) %
+        featureImageList.flatMap((item) => item.images).length
+    );
+  }
+
+  function handleNextSlide() {
+    setCurrentSlide(
+      (prevSlide) =>
+        (prevSlide + 1) % featureImageList.flatMap((item) => item.images).length
+    );
+  }
+
+  // Lấy hình ảnh banner khi component được mount hoặc featureImageList thay đổi
+  useEffect(() => {
+    dispatch(getFeatureImages()); // Lấy ảnh khi component mount hoặc khi danh sách ảnh thay đổi
+  }, [dispatch]);
+
+  // Tạo danh sách hình ảnh từ tất cả các mảng images
+  const allImages = featureImageList.flatMap((item) => item.images);
+
+  console.log(featureImageList);
   return (
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full h-[600px] overflow-hidden">
-        <img src={bannerOne} alt="" />
-        {/* {featureImageList && featureImageList.length > 0
-          ? featureImageList.map((slide, index) => (
+        {/* Kiểm tra featureImageList có ảnh và lấy ảnh từ mảng */}
+        {allImages.length > 0
+          ? allImages.map((imageUrl, imageIndex) => (
               <img
-                src={slide?.image}
-                key={index}
+                key={imageIndex}
+                src={imageUrl}
                 className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
+                  imageIndex === currentSlide ? "opacity-100" : "opacity-0"
                 } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
               />
             ))
+          : null}
 
-          : null} */}
-
+        {/* Button chuyển đến slide trước */}
         <Button
           variant="outline"
           size="icon"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) =>
-                (prevSlide - 1 + featureImageList.length) %
-                featureImageList.length
-            )
-          }
+          onClick={handlePrevSlide}
           className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80"
         >
           <ChevronLeftIcon className="w-4 h-4" />
         </Button>
+
+        {/* Button chuyển đến slide sau */}
         <Button
           variant="outline"
           size="icon"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) => (prevSlide + 1) % featureImageList.length
-            )
-          }
+          onClick={handleNextSlide}
           className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80"
         >
           <ChevronRightIcon className="w-4 h-4" />

@@ -61,4 +61,4 @@ app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 
-// app.use("/api/common/feature", commonFeatureRouter);
+app.use("/api/common/feature", commonFeatureRouter);

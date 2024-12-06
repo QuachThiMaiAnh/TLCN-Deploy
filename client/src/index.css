@@ -106,3 +106,13 @@ html {
   gap: 0.5rem; /* Khoảng cách giữa icon và text */
   animation: marquee 20s linear infinite; /* Animation cho cả container */
 }
+/* Tailwind CSS custom styles */
+.product-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Giới hạn hiển thị tối đa 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Thêm dấu "..." nếu nội dung bị cắt */
+  max-height: 3em; /* Chiều cao tương ứng với 2 dòng chữ */
+  line-height: 1.5em; /* Đặt khoảng cách dòng */
+}

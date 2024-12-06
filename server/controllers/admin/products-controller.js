@@ -205,6 +205,7 @@ const fetchAllProducts = async (req, res) => {
     }
 
     const products = await Product.find(filterConditions)
+      .sort({ createdAt: -1 }) // Thêm phần này để sắp xếp theo ngày tạo giảm dần
       .skip(skip)
       .limit(parseInt(pageSize));
 

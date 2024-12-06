@@ -53,6 +53,7 @@ function AdminProducts() {
     search: "",
   });
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [pageSize, setPageSize] = useState(2); // Trang hiện tại
   // Lấy dữ liệu sản phẩm từ Redux store
   const { products, totalPages, productList, totalCount, error } = useSelector(
     (state) => state.adminProducts
@@ -121,7 +122,6 @@ function AdminProducts() {
     setFormData({ ...formData, colors: newColors });
   }
 
-  // Thêm kích thước mặc định vào danh sách
   function handleAddDefaultSizes(colorIndex, defaultType) {
     const newSizes =
       defaultType === "clothing"
@@ -133,28 +133,30 @@ function AdminProducts() {
     const newColors = [...formData.colors];
     const existingSizes = newColors[colorIndex].sizes || [];
 
-    // Thêm kích thước mặc định, đảm bảo không bị trùng lặp
     newColors[colorIndex].sizes = [
       ...existingSizes,
-      ...newSizes.map((size) => ({
-        size,
-        quantity: 0,
-      })),
+      ...newSizes
+        .filter((size) => !existingSizes.some((s) => s.size === size)) // Tránh trùng lặp
+        .map((size) => ({
+          size,
+          quantity: 0,
+        })),
     ];
     setFormData({ ...formData, colors: newColors });
   }
 
   // Xử lý xóa số 0 mặc định trong ô số lượng
   function handleFocusQuantity(e) {
-    if (e.target.value === "0") {
-      e.target.value = "";
+    if (e.target.value === "0" || e.target.value === "NaN") {
+      e.target.value = ""; // Xóa giá trị tạm thời để người dùng nhập
     }
   }
 
   // Đảm bảo số lượng không bị null khi mất focus
   function handleBlurQuantity(e, colorIndex, sizeIndex) {
-    const value = e.target.value.trim() === "" ? 0 : Number(e.target.value);
-    handleSizeChange(colorIndex, sizeIndex, "quantity", value);
+    const value = e.target.value.trim(); // Lấy giá trị từ input
+    const parsedValue = value === "" ? 0 : Number(value); // Xử lý giá trị rỗng thành 0
+    handleSizeChange(colorIndex, sizeIndex, "quantity", parsedValue); // Cập nhật state
   }
 
   function handleRemoveSize(colorIndex, sizeIndex) {
@@ -166,9 +168,29 @@ function AdminProducts() {
   }
 
   function handleSizeChange(colorIndex, sizeIndex, field, value) {
-    const newColors = [...formData.colors];
-    newColors[colorIndex].sizes[sizeIndex][field] = value;
-    setFormData({ ...formData, colors: newColors });
+    const newColors = [...formData.colors]; // Sao chép mảng colors
+    const newSizes = [...newColors[colorIndex].sizes]; // Sao chép mảng sizes
+
+    // Sao chép đối tượng kích thước
+    const updatedSize = {
+      ...newSizes[sizeIndex],
+      [field]: value, // Chỉ cập nhật trường cần thay đổi
+    };
+
+    // Cập nhật lại mảng sizes
+    newSizes[sizeIndex] = updatedSize;
+
+    // Cập nhật lại mảng colors
+    newColors[colorIndex] = {
+      ...newColors[colorIndex],
+      sizes: newSizes,
+    };
+
+    // Cập nhật lại formData
+    setFormData({
+      ...formData,
+      colors: newColors,
+    });
   }
 
   useEffect(() => {
@@ -274,7 +296,9 @@ function AdminProducts() {
 
   // Gửi request lấy sản phẩm khi thay đổi trang hoặc bộ lọc
   useEffect(() => {
-    dispatch(fetchAllProducts({ ...filters, page: currentPage, pageSize: 4 }));
+    dispatch(
+      fetchAllProducts({ ...filters, page: currentPage, pageSize: pageSize })
+    );
   }, [dispatch, currentPage, filters]);
 
   // Hàm cập nhật bộ lọc khi thay đổi
@@ -379,6 +403,7 @@ function AdminProducts() {
             setImageLoadingState={setImageLoadingState}
             imageLoadingState={imageLoadingState}
           />
+
           {/* Màu sắc */}
           <div className="py-4 text-md">
             <Label className="font-bold ">Màu sản phẩm</Label>
@@ -417,7 +442,7 @@ function AdminProducts() {
 
                     <Button
                       variant="outline"
-                      className="flex-shrink-0 bg-blue-300"
+                      className="flex-shrink-0 bg-white hover:bg-blue-100"
                       onClick={() => handleUploadColorImage(colorIndex)}
                     >
                       Tải ảnh lên
@@ -458,7 +483,7 @@ function AdminProducts() {
 
                         {/* Số lượng */}
                         <Input
-                          type="number"
+                          // type="number"
                           placeholder="Số lượng tồn kho"
                           value={size.quantity}
                           className="border px-2 py-1 rounded-md flex-1"
@@ -471,7 +496,7 @@ function AdminProducts() {
                               colorIndex,
                               sizeIndex,
                               "quantity",
-                              Number(e.target.value)
+                              e.target.value
                             )
                           }
                         />
@@ -500,7 +525,7 @@ function AdminProducts() {
                       {/* Kích thước mặc định */}
                       <DropdownMenu>
                         <DropdownMenuTrigger>
-                          <Button className="mt-2 bg-gray-500">
+                          <Button className="mt-2 bg-blue-900 hover:bg-primary">
                             Chọn kích thước mặc định
                           </Button>
                         </DropdownMenuTrigger>
@@ -535,6 +560,8 @@ function AdminProducts() {
 
               {/* Thêm màu mới */}
               <Button
+                className="w-1/3 bg-gradient-to-r from-blue-500 to-pink-400 text-black py-2 px-4 
+                rounded-lg shadow-md hover:from-blue-6200 hover:to-purple-400 transition-all duration-300 font-bold"
                 onClick={() =>
                   setFormData({
                     ...formData,
@@ -545,11 +572,12 @@ function AdminProducts() {
                   })
                 }
               >
-                Thêm màu mới
+                Thêm màu sản phẩm mới
               </Button>
             </div>
           </div>
 
+          {/* Form chung */}
           <div className="py-6 ">
             <CommonForm
               onSubmit={onSubmit}
@@ -557,7 +585,6 @@ function AdminProducts() {
               setFormData={setFormData}
               buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
               formControls={addProductFormElements}
-              // isBtnDisabled={!isFormValid()}
             />
           </div>
         </SheetContent>

@@ -10,6 +10,8 @@ const OrderSchema = new mongoose.Schema({
       images: String,
       price: String,
       quantity: Number,
+      colorId: String, // Thêm mã màu sắc
+      sizeId: String, // Thêm mã kích thước
     },
   ],
   addressInfo: {

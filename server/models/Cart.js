@@ -14,6 +14,14 @@ const CartSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
+        colorId: {
+          type: String,
+          required: true,
+        },
+        sizeId: {
+          type: String,
+          required: true,
+        },
         quantity: {
           type: Number,
           required: true,
@@ -23,7 +31,7 @@ const CartSchema = new mongoose.Schema(
     ],
   },
   {
-    timestamps: true,
+    timestamps: true, // Tự động thêm `createdAt` và `updatedAt`
   }
 );
 

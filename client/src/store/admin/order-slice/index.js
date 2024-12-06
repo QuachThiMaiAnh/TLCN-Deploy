@@ -1,22 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// const initialState = {
-//   orderList: [],
-//   orderDetails: null,
-// };
-
-// export const getAllOrdersForAdmin = createAsyncThunk(
-//   "/order/getAllOrdersForAdmin",
-//   async () => {
-//     const response = await axios.get(
-//       `http://localhost:5000/api/admin/orders/get`
-//     );
-
-//     return response.data;
-//   }
-// );
-
 const initialState = {
   orderList: [],
   orderDetails: null,

@@ -26,39 +26,20 @@ import ArrowRightIcon from "@/components/common/ArrowRightIcon";
 function createSearchParamsHelper(filterParams) {
   const queryParams = [];
 
-  /**
-   * Data filter VD: {category: Array(2), brand: Array(2)}
-   * key- value
-      (cặp 1) brand: ['nike', 'adidas']
-      (cặp 2) category: ['men', 'women']
-      
-   * tạo chuỗi tham số truy vấn (query string) từ một đối tượng filterParams,
-   * sử dụng để thêm vào URL cho các yêu cầu HTTP hoặc điều hướng trang web.
-   * Object.entries(filterParams) sẽ tạo ra một mảng các cặp [key, value] từ filterParams. Sử dụng for...of, đoạn mã duyệt qua từng cặp
-   * Array.isArray(value) kiểm tra xem value có phải là một mảng hay không? value.length > 0 kiểm tra xem mảng này có phần tử nào không.
-   * value.join(",") kết hợp các phần tử của mảng value thành một chuỗi:  value = ["men", "women"], paramValue sẽ là "men,women".
-   * encodeURIComponent(paramValue) : các ký tự đặc biệt chuyển thành các ký tự an toàn cho URL.
-   * thêm chuỗi tham số dạng "key=value" vào mảng queryParams :"category=men%2Cwomen"
-   * queryParams.join("&") kết hợp các phần tử trong mảng queryParams thành một chuỗi: "category=men%2Cwomen&brand=nike%2Cadidas".
-   */
   for (const [key, value] of Object.entries(filterParams)) {
     if (Array.isArray(value) && value.length > 0) {
       const paramValue = value.join(",");
-
       queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
     }
   }
-  // console.log(queryParams, "queryParams");
-
   return queryParams.join("&");
 }
 
 function ShoppingListing() {
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-  const [pageSize, setPageSize] = useState(8); // Số sản phẩm trên mỗi trang
+  const [pageSize, setPageSize] = useState(4); // Số sản phẩm trên mỗi trang
   const dispatch = useDispatch();
-  const { productList, productDetails, totalCount } = useSelector(
+  const { productList, productDetails, totalCount, totalPages } = useSelector(
     (state) => state.shopProducts
   );
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -88,22 +69,7 @@ function ShoppingListing() {
   }
 
   function handleFilter(getSectionId, getCurrentOption) {
-    /**
-    xử lý việc thêm hoặc xóa một tùy chọn vào một mục lọc cụ thể (như "brand" hoặc "category")
-    keyItem, option.id
-    sao chép filters hiện tại vào cpyFilters để tránh làm thay đổi dữ liệu gốc trực tiếp.
-    indexOfCurrentSection kiểm tra mục này có tồn tại trong cpyFilters chưa
-    Nếu chưa tồn tại (indexOfCurrentSection === -1),
-    nghĩa là mục lọc này chưa có dữ liệu, nên nó sẽ thêm một mảng mới chứa getCurrentOption vào cpyFilters.
-    indexOf tìm vị trí của getCurrentOption trong mảng cpyFilters[getSectionId]
-    Nếu indexOfCurrentOption === -1, tức là getCurrentOption chưa có trong mục lọc getSectionId, nên nó sẽ thêm tùy chọn đó vào.
-    Nếu indexOfCurrentOption khác -1, nghĩa là tùy chọn này đã có sẵn trong mục lọc, thì nó sẽ xóa tùy chọn đó.
-    xóa 1 phần tử bắt đầu tù vị trí đầu tiên tìm thấy nó trong mảng cpyFilters
-    Sau khi cập nhật cpyFilters, nó lưu cpyFilters vào sessionStorage dưới dạng JSON
-    để đảm bảo dữ liệu được lưu trữ tạm thời và có thể khôi phục khi người dùng tải lại trang.
-   */
     let cpyFilters = { ...filters };
-
     const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
     if (indexOfCurrentSection === -1) {
       cpyFilters = {
@@ -123,41 +89,49 @@ function ShoppingListing() {
   }
 
   function handleGetProductDetails(getCurrentProductId) {
-    // console.log(getCurrentProductId);
     dispatch(fetchProductDetails(getCurrentProductId));
   }
 
-  function handleAddtoCart(getCurrentProductId, getTotalStock) {
-    // console.log(cartItems);
-    let getCartItems = cartItems.items || [];
-
-    if (getCartItems.length) {
-      const indexOfCurrentItem = getCartItems.findIndex(
-        (item) => item.productId === getCurrentProductId
-      );
-      if (indexOfCurrentItem > -1) {
-        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
-        if (getQuantity + 1 > getTotalStock) {
-          toast({
-            title: `Chỉ có thể thêm số lượng tối đa là ${getQuantity} cho mặt hàng này`,
-            variant: "destructive",
-          });
-
-          return;
-        }
-      }
+  function handleAddToCart(productId, colorId, sizeId, quantity) {
+    if (!colorId || !sizeId) {
+      toast({
+        title:
+          "Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng.",
+        variant: "destructive",
+      });
+      return;
     }
 
-    // gọi Api thêm sản phẩm
+    const items = cartItems?.items || []; // Giá trị mặc định nếu items không tồn tại
+
+    let existingItem = items.find(
+      (item) =>
+        item.productId === productId &&
+        item.colorId === colorId &&
+        item.sizeId === sizeId
+    );
+
+    if (
+      existingItem &&
+      existingItem.quantity + quantity > selectedSize?.quantity
+    ) {
+      toast({
+        title: `Chỉ có thể thêm tối đa ${selectedSize?.quantity} sản phẩm.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    console.log(colorId, sizeId, "colorId, sizeId");
     dispatch(
       addToCart({
         userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
+        productId,
+        colorId,
+        sizeId,
+        quantity,
       })
     ).then((data) => {
       if (data?.payload?.success) {
-        // gọi Api lấy toàn bộ sản phẩm trong giỏ hàng
         dispatch(fetchCartItems(user?.id));
         toast({
           title: "Đã thêm sản phẩm vào giỏ hàng!",
@@ -175,7 +149,8 @@ function ShoppingListing() {
     setSort("price-lowtohigh");
     setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, [categorySearchParam]);
-  // console.log(categorySearchParam, "cateSearch");
+
+  console.log(categorySearchParam, "cateSearch");
 
   useEffect(() => {
     if (filters && Object.keys(filters).length > 0) {
@@ -184,6 +159,7 @@ function ShoppingListing() {
     }
     setCurrentPage(1);
   }, [filters]);
+  // console.log(searchParams, "searchParam");
 
   // lấy toàn bộ sản phẩm ( có lọc + sắp xếp)
   useEffect(() => {
@@ -195,21 +171,17 @@ function ShoppingListing() {
           page: currentPage,
           pageSize,
         })
-      ).then((response) => {
-        // Kiểm tra xem API có trả về totalPages không
-        if (response?.payload?.totalPages) {
-          setTotalPages(response.payload.totalPages);
-        }
-      });
+      );
   }, [dispatch, filters, sort, currentPage, pageSize]);
+
+  console.log(filters, sort, "filter, sort");
 
   useEffect(() => {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
   console.log(productList, "productList");
-  // console.log(filters);
-  // console.log(productDetails);
+  console.log(productDetails, "productDetails");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6 ">
@@ -260,7 +232,7 @@ function ShoppingListing() {
                 <ShoppingProductTile
                   handleGetProductDetails={handleGetProductDetails}
                   product={productItem}
-                  handleAddtoCart={handleAddtoCart}
+                  handleAddToCart={handleAddToCart}
                 />
               ))
             : null}

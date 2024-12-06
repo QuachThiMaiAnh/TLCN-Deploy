@@ -9,8 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 function ShoppingProductTile({
   product,
   handleGetProductDetails,
-  handleAddtoCart,
+  handleAddToCart,
 }) {
+  // console.log(product);
   const { cartItems, error } = useSelector((state) => state.shopCart);
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -46,7 +47,7 @@ function ShoppingProductTile({
   }, [error, dispatch]);
 
   return (
-    <Card className="w-full max-w-sm mx-auto hover:border-gray-900 ">
+    <Card className="w-full max-w-sm mx-auto hover:border-blue-400 shadow-sm shadow-slate-500 hover:cursor-pointer">
       {/* quy định phần click vào để mở dialog product detail, phần để mở card
       => tránh xung đột */}
       <div onClick={() => handleGetProductDetails(product?._id)}>
@@ -76,7 +77,11 @@ function ShoppingProductTile({
         {/* nội dung card sản phẩm */}
         <CardContent className="p-4">
           {/* tên sản phẩm */}
-          <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
+          <div className="h-[65px]">
+            <h2 className="product-title text-xl font-bold mb-2">
+              {product?.title}
+            </h2>
+          </div>
           {/* loại sp - thương hiệu */}
           <div className="flex justify-between items-center mb-2">
             <span className="text-[16px] text-muted-foreground">
@@ -88,8 +93,8 @@ function ShoppingProductTile({
           </div>
 
           <div
-            className={`flex items-center mb-2 ${
-              product?.salePrice > 0 ? "justify-between" : "justify-end"
+            className={`flex items-end mb-2  ${
+              product?.salePrice > 0 ? "justify-between" : "justify-center"
             }`}
           >
             {product?.salePrice > 0 ? (
@@ -117,18 +122,24 @@ function ShoppingProductTile({
       </div>
       {/* nút thêm SP vào giỏ hàng */}
       <CardFooter>
-        {product?.totalStock === 0 ? (
+        {/* {product?.totalStock === 0 ? (
           <Button className="w-full opacity-60 cursor-not-allowed">
             Sản phẩm đã hết hàng
           </Button>
         ) : (
+          // <Button
+          //   onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
+          //   className="w-full"
+          // >
+          //   Thêm vào giỏ hàng
+          // </Button>
           <Button
-            onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
             className="w-full"
+            onClick={() => handleAddToCart(product?._id, colorId, sideId, 1)}
           >
             Thêm vào giỏ hàng
           </Button>
-        )}
+        )} */}
       </CardFooter>
     </Card>
   );

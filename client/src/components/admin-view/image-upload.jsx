@@ -156,26 +156,6 @@ function ProductImageUpload({
               </Button>
             </div>
           ))}
-
-          {/* {imageFiles &&
-            Array.from(imageFiles).map((file, index) => (
-              <div key={`new-${index}`} className="relative">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt="New Image Thumbnail"
-                  className="w-full h-24 object-cover rounded-lg"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-1 right-1 text-muted-foreground hover:text-foreground"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  <XIcon className="w-4 h-4" />
-                  <span className="sr-only">Remove File</span>
-                </Button>
-              </div>
-            ))} */}
         </div>
       </div>
     </div>

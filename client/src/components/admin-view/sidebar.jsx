@@ -20,16 +20,16 @@ const adminSidebarMenuItems = [
     icon: <LayoutDashboard />,
   },
   {
+    id: "features",
+    label: "Banner",
+    path: "/admin/features",
+    icon: <Layers3 />,
+  },
+  {
     id: "products",
     label: "Sản phẩm",
     path: "/admin/products",
     icon: <ShoppingBasket />,
-  },
-  {
-    id: "brands",
-    label: "Thương hiệu",
-    path: "/admin/brands",
-    icon: <Layers3 />,
   },
   {
     id: "categories",

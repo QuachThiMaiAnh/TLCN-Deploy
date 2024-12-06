@@ -74,7 +74,7 @@ module.exports = {
       },
       backgroundImage: {
         "gradient-text":
-          "linear-gradient(to right, hsl(222, 47%, 30%), hsl(300, 85%, 30%), hsl(207, 90%, 20%))",
+          "linear-gradient(to right, hsl(222, 47%, 40%),hsl(222, 47%, 30%)  ,hsl(222, 47%, 20%) )",
       },
     },
   },

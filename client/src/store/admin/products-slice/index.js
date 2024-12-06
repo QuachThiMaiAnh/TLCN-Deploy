@@ -31,20 +31,6 @@ export const addNewProduct = createAsyncThunk(
   }
 );
 
-// export const fetchAllProducts = createAsyncThunk(
-//   "/products/fetchAllProducts",
-//   async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
-//     try {
-//       const result = await axios.get(
-//         `http://localhost:5000/api/admin/products/get?page=${page}&pageSize=${pageSize}`
-//       );
-//       return result?.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || "Đã xảy ra lỗi");
-//     }
-//   }
-// );
-
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async (
