@@ -22,9 +22,10 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // console.log(orderDetails, "orderDetails");
-  // Hàm định dạng số với dấu chấm ngăn cách
   function formatNumberWithSeparator(value) {
+    if (value == null) {
+      return "0"; // Hoặc trả về một giá trị mặc định nếu cần
+    }
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
@@ -58,7 +59,6 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
     ).then((data) => {
       if (data?.payload?.success) {
         dispatch(getOrderDetailsForAdmin(orderDetails?._id));
-        dispatch(getAllOrdersForAdmin({ page: currentPage, pageSize }));
         setFormData(initialFormData);
         toast({
           title: data?.payload?.message,
@@ -68,7 +68,7 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
   }
 
   return (
-    <DialogContent className="sm:max-w-[600px] overflow-auto h-full">
+    <DialogContent className="sm:max-w-[700px] overflow-auto h-full">
       <div className="grid gap-6">
         <div className="grid gap-2">
           <div className="flex mt-6 items-center justify-between">
@@ -83,14 +83,16 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-bold">Tổng thanh toán</p>
-            <Label>{orderDetails?.totalAmount}đ</Label>
+            <Label>
+              {formatNumberWithSeparator(orderDetails?.totalAmount)}đ
+            </Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-bold">Phương thức thanh toán</p>
             <Label>{orderDetails?.paymentMethod}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
-            <p className="font-bold">Trạng thánh thanh toán</p>
+            <p className="font-bold">Trạng thái thanh toán</p>
             <Label>
               <Badge className="py-1 px-3 bg-white border-black shadow-inner shadow-black text-black hover:bg-white">
                 {getStatusPaymentLabel(orderDetails?.paymentStatus)}
@@ -113,82 +115,68 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
                     : "bg-black"
                 }`}
               >
-                {getStatusLabel(orderDetails?.orderStatus)}
+                {getStatusLabel(orderDetails?.orderStatus)} -{" "}
+                {new Date(orderDetails?.orderUpdateDate).toLocaleDateString(
+                  "en-GB"
+                )}
               </Badge>
             </Label>
           </div>
         </div>
         <Separator />
         <div className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="font-bold">Chi tiết đơn hàng:</div>
-            <table className="table-auto w-full border-collapse border border-blue-300">
-              <thead>
-                <tr className="bg-blue-100">
-                  <th className="border border-blue-300 px-4 py-2 text-left">
-                    Tên sản phẩm
-                  </th>
-                  <th className="border border-blue-300 px-4 py-2 text-left">
-                    Số lượng
-                  </th>
-                  <th className="border border-blue-300 px-4 py-2 text-left">
-                    Giá
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderDetails?.cartItems &&
-                orderDetails?.cartItems.length > 0 ? (
-                  orderDetails?.cartItems.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2">
-                        {item.title}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {item.quantity}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {formatNumberWithSeparator(item.price)}đ
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="3"
-                      className="border border-gray-300 px-4 py-2 text-center"
-                    >
-                      Giỏ hàng trống
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="font-bold">Chi tiết đơn hàng:</div>
+          <div className="grid gap-2 text-md">
+            {orderDetails?.cartItems && orderDetails?.cartItems.length > 0 ? (
+              orderDetails.cartItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-start border border-gray-300 p-4  rounded-md shadow-sm gap-4 "
+                >
+                  <img
+                    src={item.images}
+                    alt={item.title}
+                    className="w-20 h-20 object-cover rounded-sm"
+                  />
+                  <div className="flex flex-col gap-3">
+                    <p className="font-bold">{item.title}</p>
+                    <div className="grid grid-cols-4 gap-3">
+                      <p>Màu sắc: {item.colorName}</p>
+                      <p>Kích thước: {item.sizeName}</p>
+                      <p>Số lượng: {item.quantity}</p>
+                      <p>Giá: {formatNumberWithSeparator(item.price)}đ</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center">Giỏ hàng trống</p>
+            )}
           </div>
         </div>
         <Separator />
         <div className="grid gap-4">
           <div className="grid gap-4">
             <div className="font-bold">Thông tin vận chuyển: </div>
-            <div className="grid gap-4 ">
+            <div className="grid gap-4">
               <Label>
-                <span className="font-bold ">Địa chỉ:</span>{" "}
+                <span className="font-bold">Địa chỉ:</span>{" "}
                 {orderDetails?.addressInfo?.address}
               </Label>
               <Label>
-                <span className="font-bold ">Thành phố/ Tỉnh:</span>{" "}
+                <span className="font-bold">Thành phố/ Tỉnh:</span>{" "}
                 {orderDetails?.addressInfo?.city}
               </Label>
               <Label>
-                <span className="font-bold ">Pincode: </span>
+                <span className="font-bold">Pincode: </span>
                 {orderDetails?.addressInfo?.pincode}
               </Label>
               <Label>
-                <span className="font-bold ">Số điện thoại:</span>{" "}
+                <span className="font-bold">Số điện thoại:</span>{" "}
                 {orderDetails?.addressInfo?.phone}
               </Label>
               <Label>
-                <span className="font-bold ">Ghi chú: </span>
+                <span className="font-bold">Ghi chú: </span>
                 {orderDetails?.addressInfo?.notes}
               </Label>
             </div>
@@ -204,7 +192,7 @@ function AdminOrderDetailsView({ orderDetails, pageSize, currentPage }) {
                 componentType: "select",
                 options: [
                   { id: "pending", label: "Chờ xử lý" },
-                  { id: "inProcess", label: "Đang xử lý" },
+                  { id: "confirmed", label: "Đã xác nhận" },
                   { id: "inShipping", label: "Đang vận chuyển" },
                   { id: "delivered", label: "Đã giao hàng" },
                   { id: "rejected", label: "Đã bị từ chối" },

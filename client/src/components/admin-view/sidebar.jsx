@@ -32,12 +32,6 @@ const adminSidebarMenuItems = [
     icon: <ShoppingBasket />,
   },
   {
-    id: "categories",
-    label: "Loại sản phẩm",
-    path: "/admin/categories",
-    icon: <SquareStack />,
-  },
-  {
     id: "orders",
     label: "Đơn hàng",
     path: "/admin/orders",

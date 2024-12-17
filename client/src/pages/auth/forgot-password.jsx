@@ -9,6 +9,7 @@ function ForgotPassword() {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const { forgotPasswordError } = useSelector((state) => state.auth);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,10 +22,10 @@ function ForgotPassword() {
     dispatch(forgotPassword(email)).then((data) => {
       if (data?.payload?.success) {
         toast({
-          title: "Email đặt lại mật khẩu đã được gửi đến email của bạn !",
+          title: "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn !",
         });
       } else {
-        toast({ title: data?.payload?.message, variant: "destructive" });
+        toast({ title: forgotPasswordError, variant: "destructive" });
       }
     });
   };

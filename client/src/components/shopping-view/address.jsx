@@ -81,7 +81,6 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   function handleDeleteAddress(getCurrentAddress) {
-    console.log(getCurrentAddress, "currentAddress");
     dispatch(
       deleteAddress({ userId: user?.id, addressId: getCurrentAddress._id })
     ).then((data) => {
@@ -96,7 +95,6 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
 
   function handleEditAddress(getCurrentAddress) {
     // Nhấn edit trên card address thì hàm này đc gọi
-    console.log(getCurrentAddress, "curAdd");
     setCurrentEditedId(getCurrentAddress?._id);
     setFormData({
       ...formData,
@@ -128,8 +126,6 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   useEffect(() => {
     dispatch(fetchAllAddresses(user?.id));
   }, [dispatch]);
-
-  // console.log(addressList, "addressList");
 
   return (
     <Card>

@@ -30,7 +30,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
           0
         )
       : 0;
-  // console.log(user.id);
+
   // Hàm xóa toàn bộ giỏ hàng
   function handleClearCart() {
     if (!user?.id) {

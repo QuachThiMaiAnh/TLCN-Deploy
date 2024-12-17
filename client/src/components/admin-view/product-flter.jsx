@@ -80,12 +80,6 @@ const ProductFilterForm = ({ setCurrentPage, filters, onFilterChange }) => {
         >
           Xóa bộ lọc
         </Button>
-        {/* <button
-          type="submit"
-          className="bg-blue-500 text-white rounded-md px-4 py-2"
-        >
-          Lọc sản phẩm
-        </button> */}
       </div>
     </form>
   );

@@ -211,7 +211,7 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Email khôi phục mật khẩu đã được gửi đến email của bạn!",
+      message: "Liên kết khôi phục mật khẩu đã được gửi đến email của bạn!",
     });
   } catch (error) {
     console.error("Lỗi gửi email:", error);

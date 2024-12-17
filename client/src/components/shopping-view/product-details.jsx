@@ -192,6 +192,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               <ChevronLeft />
             </button>
           )}
+
           {productDetails?.images.length > 1 && (
             <button
               onClick={() =>

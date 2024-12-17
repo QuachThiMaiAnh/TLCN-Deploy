@@ -32,6 +32,8 @@ const createOrder = async (req, res) => {
         orderUpdateDate,
       });
 
+      // console.log(cartId, "đây");
+
       await newlyCreatedOrder.save();
       // Cập nhật giỏ hàng và số lượng sản phẩm
       for (let item of cartItems) {
@@ -213,7 +215,7 @@ const capturePayment = async (req, res) => {
     }
 
     order.paymentStatus = "paid";
-    order.orderStatus = "confirmed";
+    // order.orderStatus = "confirmed";
     order.paymentId = paymentId;
     order.payerId = payerId;
 
@@ -268,13 +270,16 @@ const capturePayment = async (req, res) => {
 
     // Xóa giỏ hàng sau khi thanh toán thành công
 
+    // Lấy userId từ order
+    const userId = order.userId;
+
     await Cart.findOneAndDelete(userId);
 
     await order.save();
 
     res.status(200).json({
       success: true,
-      message: "Đơn hàng đã được xác nhận!",
+      message: "Đơn hàng thanh toán PayPal đã được tạo thành công.",
       data: order,
     });
   } catch (e) {

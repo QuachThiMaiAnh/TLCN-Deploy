@@ -3,7 +3,6 @@ import { Navigate, useLocation } from "react-router-dom";
 
 function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
-  console.log(location.pathname, isAuthenticated, user?.role);
 
   // nếu người dùng chưa được xác thực và cố truy cập vào trang nào đó không phải là login/ regiter
   if (

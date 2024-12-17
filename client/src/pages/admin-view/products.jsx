@@ -225,7 +225,6 @@ function AdminProducts() {
       });
       return;
     }
-    console.log(uploadedImageUrls, "uploadedImageUrls");
     // Nếu đang chỉnh sửa sản phẩm
     if (currentEditedId !== null) {
       dispatch(

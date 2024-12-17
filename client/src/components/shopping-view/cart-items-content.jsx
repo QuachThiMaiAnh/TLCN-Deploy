@@ -15,7 +15,6 @@ function UserCartItemsContent({ cartItem }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // console.log(cartItem, "1 Sp trong giỏ hàng");
   // Hàm định dạng số với dấu chấm ngăn cách
   function formatNumberWithSeparator(value) {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

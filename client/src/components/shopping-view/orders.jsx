@@ -25,8 +25,6 @@ function ShoppingOrders() {
   const { user } = useSelector((state) => state.auth);
   const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
 
-  console.log(orderList, "orderList");
-
   function handleFetchOrderDetails(getId) {
     dispatch(getOrderDetails(getId));
   }
@@ -54,8 +52,6 @@ function ShoppingOrders() {
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
-
-  console.log(orderDetails, "orderDetails");
 
   return (
     <Card>

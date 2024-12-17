@@ -10,17 +10,30 @@ const initialState = {
   isLoading: false,
 };
 
+// export const getAllOrdersForAdmin = createAsyncThunk(
+//   "/order/getAllOrdersForAdmin",
+//   async ({ page, pageSize }) => {
+//     const response = await axios.get(
+//       `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}`
+//     );
+
+//     return response.data; // Trả về cả orders và totalCount
+//   }
+// );
+
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
-  async ({ page, pageSize }) => {
+  async ({ page, pageSize, orderStatus }) => {
+    // Truyền tham số orderStatus vào trong query string nếu có
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}`
+      `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}&orderStatus=${
+        orderStatus || ""
+      }`
     );
 
     return response.data; // Trả về cả orders và totalCount
   }
 );
-
 export const getOrderDetailsForAdmin = createAsyncThunk(
   "/order/getOrderDetailsForAdmin",
   async (id) => {
@@ -65,7 +78,6 @@ const adminOrderSlice = createSlice({
         state.isLoading = false;
         state.orderList = action.payload.data;
         state.totalCount = action.payload.totalCount; // Cập nhật tổng số bản ghi
-        console.log(action.payload);
       })
       .addCase(getAllOrdersForAdmin.rejected, (state) => {
         state.isLoading = false;

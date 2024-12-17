@@ -15,6 +15,7 @@ const {
   shopSearchRouter,
   shopReviewRouter,
   commonFeatureRouter,
+  adminDashboardRouter,
 } = require("./routes");
 
 // Kết nối MongoDB sử dụng biến môi trường
@@ -24,6 +25,7 @@ mongoose
   .catch((error) => console.log(error));
 
 const app = express();
+const path = require("path");
 
 // Thiết lập cổng từ biến môi trường
 const PORT = process.env.PORT || 5000;
@@ -53,6 +55,7 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
+app.use("/api/admin/statistics", adminDashboardRouter);
 
 app.use("/api/shop/products", shopProductsRouter);
 app.use("/api/shop/cart", shopCartRouter);
@@ -62,3 +65,11 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
+
+// Phục vụ các file tĩnh đã biên dịch của React
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// Mọi request khác sẽ trả về file HTML chính của React
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});

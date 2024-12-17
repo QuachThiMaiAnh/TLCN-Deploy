@@ -26,17 +26,26 @@ function AdminOrdersView() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10; // Số đơn hàng mỗi trang
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [orderStatusFilter, setOrderStatusFilter] = useState(""); // State cho lọc trạng thái
   const { orderList, orderDetails, totalCount } = useSelector(
     (state) => state.adminOrder
   );
   const dispatch = useDispatch();
+
+  // Lọc theo trạng thái đơn hàng
+  const options = [
+    { id: "pending", label: "Chờ xử lý" },
+    { id: "confirmed", label: "Đã xác nhận" },
+    { id: "inShipping", label: "Đang vận chuyển" },
+    { id: "delivered", label: "Đã giao hàng" },
+    { id: "rejected", label: "Đã bị từ chối" },
+  ];
 
   function handleFetchOrderDetails(getId) {
     dispatch(getOrderDetailsForAdmin(getId));
   }
 
   // Xử lý chuyển trang
-  // const totalPages = Math.ceil(orderList?.totalCount / pageSize);
   const totalPages =
     totalCount && pageSize ? Math.ceil(totalCount / pageSize) : 1;
 
@@ -49,13 +58,6 @@ function AdminOrdersView() {
   }
 
   const getStatusLabel = (id) => {
-    const options = [
-      { id: "pending", label: "Chờ xử lý" },
-      { id: "confirmed", label: "Đã xác nhận" },
-      { id: "inShipping", label: "Đang vận chuyển" },
-      { id: "delivered", label: "Đã giao hàng" },
-      { id: "rejected", label: "Đã bị từ chối" },
-    ];
     const status = options.find((option) => option.id === id);
     return status ? status.label : "Không xác định"; // Trả về mặc định nếu không tìm thấy
   };
@@ -65,36 +67,66 @@ function AdminOrdersView() {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
+  // Fetch dữ liệu khi trang hoặc trạng thái thay đổi
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin({ page: currentPage, pageSize }));
-  }, [dispatch, currentPage, pageSize]); // pageSize cần có nếu bạn muốn hỗ trợ thay đổi số lượng đơn hàng mỗi trang
-
-  // useEffect(() => {
-  //   dispatch(getAllOrdersForAdmin());
-  // }, [dispatch]);
-
-  console.log(orderDetails, "orderDetails");
+    dispatch(
+      getAllOrdersForAdmin({
+        page: currentPage,
+        pageSize,
+        orderStatus: orderStatusFilter,
+      })
+    );
+  }, [dispatch, currentPage, pageSize, orderStatusFilter, openDetailsDialog]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
+  const handleStatusFilterChange = (status) => {
+    // Nếu status đã được chọn, bỏ chọn (set null)
+    if (orderStatusFilter === status) {
+      setOrderStatusFilter(null);
+    } else {
+      // Nếu status chưa được chọn, cập nhật giá trị
+      setOrderStatusFilter(status);
+    }
+
+    setCurrentPage(1); // Reset về trang đầu khi thay đổi bộ lọc
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-12 mb-4">
           <CardTitle className="text-gradient">Tất cả đơn hàng</CardTitle>
-          <Label className="">
+          <Label>
             <Badge className="py-1 px-3 bg-white border-black shadow-inner shadow-black text-black hover:bg-white">
               Hiển thị {orderList.length} / {totalCount} đơn hàng
             </Badge>
           </Label>
         </div>
+        {/* Tab chọn trạng thái */}
+        <div className="flex gap-4 justify-center">
+          {options.map((option) => (
+            <Button
+              key={option.id}
+              variant={orderStatusFilter === option.id ? "default" : "outline"}
+              onClick={() => handleStatusFilterChange(option.id)}
+              className={`w-1/5 font-bold ${
+                orderStatusFilter === option.id
+                  ? ""
+                  : "bg-blue-50 text-black shadow-sm shadow-slate-400"
+              }`}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="">
               <TableHead>ID đơn hàng</TableHead>
               <TableHead>Ngày đặt đơn</TableHead>
               <TableHead>Trạng thái đơn hàng</TableHead>
@@ -107,7 +139,7 @@ function AdminOrdersView() {
           <TableBody>
             {orderList && orderList.length > 0
               ? orderList.map((orderItem) => (
-                  <TableRow>
+                  <TableRow key={orderItem?._id}>
                     <TableCell className="font-bold">
                       {orderItem?._id}
                     </TableCell>
@@ -134,7 +166,6 @@ function AdminOrdersView() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {" "}
                       {formatNumberWithSeparator(orderItem?.totalAmount)}đ
                     </TableCell>
                     <TableCell>
@@ -165,27 +196,22 @@ function AdminOrdersView() {
           </TableBody>
         </Table>
         {/* Hiển thị phân trang */}
-
         <div className="flex justify-center items-center mt-4 gap-4">
           <button
             className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
             disabled={currentPage === 1}
             onClick={goToPreviousPage}
           >
-            {/* Mũi tên trái */}
             <ArrowLeftIcon className="w-6 h-6 " />
           </button>
-
           <span className="font-bold">
             Trang <span>{currentPage}</span> / {totalPages}
           </span>
-
           <button
             className="w-10 h-10 flex justify-center items-center border rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
             disabled={currentPage === totalPages}
             onClick={goToNextPage}
           >
-            {/* Mũi tên phải */}
             <ArrowRightIcon className="w-6 h-6" />
           </button>
         </div>

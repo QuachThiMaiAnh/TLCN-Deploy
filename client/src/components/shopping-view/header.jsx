@@ -97,8 +97,6 @@ function HeaderRightContent() {
     }
   }, [dispatch]);
 
-  console.log(cartItems, "cartItems");
-
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       {/* xử lý giỏ hàng */}
