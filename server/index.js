@@ -1,5 +1,6 @@
 require("dotenv").config(); // Nạp biến môi trường từ file .env
 const express = require("express");
+const semver = require("./node_modules/semver/index.js");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
