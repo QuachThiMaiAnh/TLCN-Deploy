@@ -1,4 +1,5 @@
-require("dotenv").config(); // Nạp biến môi trường từ file .env
+require("dotenv").config();
+
 const express = require("express");
 const semver = require("semver");
 const mongoose = require("mongoose");

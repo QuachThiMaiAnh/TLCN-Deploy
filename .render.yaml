@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: server-backend
+    env: node
+    buildCommand: "npm install --prefix server" # Cài đặt dependencies cho backend
+    startCommand: "npm run start --prefix server" # Lệnh để chạy backend
+    plan: free
+
+  - type: web
+    name: client-frontend
+    env: node
+    buildCommand: "npm run build --prefix client" # Cài đặt và build frontend
+    startCommand: "serve -s client/build" # Chạy frontend với serve (hoặc lệnh tương tự)
+    plan: free
