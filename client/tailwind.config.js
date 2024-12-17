@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-// Sử dụng biến để lưu màu sắc cho phép dễ dàng thay đổi màu giữa các chế độ sáng và tối
+// Sử dụng import thay cho require
+import tailwindcssAnimate from "tailwindcss-animate";
+
 export const darkMode = ["class"];
 export const content = [
   "./pages/**/*.{js,jsx}",
