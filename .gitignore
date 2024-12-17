@@ -1,5 +1,5 @@
-# node_modules
-# .env
+node_modules
+.env
 # # các tệp này sẽ không được thêm vào, commit hay push lên repository.
 # # Tệp .gitignore trong Git được sử dụng để chỉ định những tệp và thư mục mà bạn không muốn Git theo dõi hoặc đưa vào hệ thống quản lý phiên bản (version control)
 
