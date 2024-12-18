@@ -20,7 +20,7 @@ export const fetchAllFilteredProducts = createAsyncThunk(
       sortBy: sortParams,
     });
     const result = await axios.get(
-      `http://localhost:5000/api/shop/products/get?page=${page}&pageSize=${pageSize}&${query}`
+      `https://tlcn-deploy-1.onrender.com/api/shop/products/get?page=${page}&pageSize=${pageSize}&${query}`
     );
 
     return result?.data;
@@ -31,7 +31,7 @@ export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails",
   async (id) => {
     const result = await axios.get(
-      `http://localhost:5000/api/shop/products/get/${id}`
+      `https://tlcn-deploy-1.onrender.com/api/shop/products/get/${id}`
     );
 
     return result?.data;

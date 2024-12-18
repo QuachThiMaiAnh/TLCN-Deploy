@@ -12,7 +12,7 @@ export const addReview = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/shop/review/add`,
+        `https://tlcn-deploy-1.onrender.com/api/shop/review/add`,
         formData
       );
       return response.data;
@@ -28,7 +28,7 @@ export const getReviews = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/shop/review/${id}`
+        `https://tlcn-deploy-1.onrender.com/api/shop/review/${id}`
       );
       return response.data;
     } catch (error) {

@@ -16,7 +16,7 @@ export const fetchRevenueStatistics = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const result = await axios.get(
-        "http://localhost:5000/api/admin/statistics/revenue",
+        "https://tlcn-deploy-1.onrender.com/api/admin/statistics/revenue",
         { params }
       );
       return result?.data?.data; // Dữ liệu bao gồm: todayRevenue, revenueByTimePeriod
@@ -32,7 +32,7 @@ export const fetchOrderStatistics = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const result = await axios.get(
-        "http://localhost:5000/api/admin/statistics/orders",
+        "https://tlcn-deploy-1.onrender.com/api/admin/statistics/orders",
         { params }
       );
       return result?.data?.data; // Dữ liệu bao gồm: orderStats, totalOrders, todayTotalOrders
@@ -48,7 +48,7 @@ export const fetchInventoryStatistics = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const result = await axios.get(
-        "http://localhost:5000/api/admin/statistics/inventory"
+        "https://tlcn-deploy-1.onrender.com/api/admin/statistics/inventory"
       );
       return result?.data?.data;
     } catch (error) {
@@ -63,7 +63,7 @@ export const fetchSoldProductStatistics = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const result = await axios.get(
-        "http://localhost:5000/api/admin/statistics/sold-products",
+        "https://tlcn-deploy-1.onrender.com/api/admin/statistics/sold-products",
         { params }
       );
       return result?.data?.data;

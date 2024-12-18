@@ -10,23 +10,12 @@ const initialState = {
   isLoading: false,
 };
 
-// export const getAllOrdersForAdmin = createAsyncThunk(
-//   "/order/getAllOrdersForAdmin",
-//   async ({ page, pageSize }) => {
-//     const response = await axios.get(
-//       `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}`
-//     );
-
-//     return response.data; // Trả về cả orders và totalCount
-//   }
-// );
-
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
   async ({ page, pageSize, orderStatus }) => {
     // Truyền tham số orderStatus vào trong query string nếu có
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get?page=${page}&pageSize=${pageSize}&orderStatus=${
+      `https://tlcn-deploy-1.onrender.com/api/admin/orders/get?page=${page}&pageSize=${pageSize}&orderStatus=${
         orderStatus || ""
       }`
     );
@@ -38,7 +27,7 @@ export const getOrderDetailsForAdmin = createAsyncThunk(
   "/order/getOrderDetailsForAdmin",
   async (id) => {
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/details/${id}`
+      `https://tlcn-deploy-1.onrender.com/api/admin/orders/details/${id}`
     );
 
     return response.data;
@@ -49,7 +38,7 @@ export const updateOrderStatus = createAsyncThunk(
   "/order/updateOrderStatus",
   async ({ id, orderStatus }) => {
     const response = await axios.put(
-      `http://localhost:5000/api/admin/orders/update/${id}`,
+      `https://tlcn-deploy-1.onrender.com/api/admin/orders/update/${id}`,
       {
         orderStatus,
       }

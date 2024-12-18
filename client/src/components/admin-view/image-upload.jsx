@@ -72,7 +72,7 @@ function ProductImageUpload({
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/admin/products/upload-image",
+        "https://tlcn-deploy-1.onrender.com/api/admin/products/upload-image",
         data
       );
 

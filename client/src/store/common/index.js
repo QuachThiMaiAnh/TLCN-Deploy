@@ -10,7 +10,7 @@ export const getFeatureImages = createAsyncThunk(
   "/order/getFeatureImages",
   async () => {
     const response = await axios.get(
-      `http://localhost:5000/api/common/feature/get`
+      `https://tlcn-deploy-1.onrender.com/api/common/feature/get`
     );
 
     return response.data;
@@ -21,7 +21,7 @@ export const addFeatureImage = createAsyncThunk(
   "/order/addFeatureImage",
   async (images) => {
     const response = await axios.post(
-      `http://localhost:5000/api/common/feature/add`,
+      `https://tlcn-deploy-1.onrender.com/api/common/feature/add`,
       { images }
     );
 
@@ -33,7 +33,7 @@ export const deleteFeatureImage = createAsyncThunk(
   "/order/deleteFeatureImage",
   async ({ id, imageUrl }) => {
     const response = await axios.post(
-      `http://localhost:5000/api/common/feature/delete`,
+      `https://tlcn-deploy-1.onrender.com/api/common/feature/delete`,
       { id, imageUrl }
     );
 
@@ -45,7 +45,7 @@ export const deleteAllFeatureImages = createAsyncThunk(
   "/order/deleteAllFeatureImages",
   async () => {
     const response = await axios.delete(
-      `http://localhost:5000/api/common/feature/delete-all`
+      `https://tlcn-deploy-1.onrender.com/api/common/feature/delete-all`
     );
 
     return response.data;

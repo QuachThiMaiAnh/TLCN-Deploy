@@ -16,7 +16,7 @@ export const addToCart = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/shop/cart/add",
+        "https://tlcn-deploy-1.onrender.com/api/shop/cart/add",
         {
           userId,
           productId,
@@ -38,7 +38,7 @@ export const fetchCartItems = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/shop/cart/get/${userId}`
+        `https://tlcn-deploy-1.onrender.com/api/shop/cart/get/${userId}`
       );
       return response.data;
     } catch (error) {
@@ -53,7 +53,7 @@ export const deleteCartItem = createAsyncThunk(
   async ({ userId, productId, colorId, sizeId }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/shop/cart/${userId}/${productId}/${colorId}/${sizeId}`
+        `https://tlcn-deploy-1.onrender.com/api/shop/cart/${userId}/${productId}/${colorId}/${sizeId}`
       );
       return response.data;
     } catch (error) {
@@ -71,7 +71,7 @@ export const updateCartQuantity = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/shop/cart/update-cart",
+        "https://tlcn-deploy-1.onrender.com/api/shop/cart/update-cart",
         {
           userId,
           productId,
@@ -104,7 +104,7 @@ export const updateCartItem = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/shop/cart/update-item",
+        "https://tlcn-deploy-1.onrender.com/api/shop/cart/update-item",
         {
           userId,
           productId,
@@ -128,7 +128,7 @@ export const clearCart = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/shop/cart/clear/${userId}`
+        `https://tlcn-deploy-1.onrender.com/api/shop/cart/clear/${userId}`
       );
       return response.data;
     } catch (error) {
