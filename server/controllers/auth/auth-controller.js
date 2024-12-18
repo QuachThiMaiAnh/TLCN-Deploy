@@ -126,8 +126,21 @@ const loginUser = async (req, res) => {
 
 //LOGOUT
 
+// const logoutUser = (req, res) => {
+//   res.clearCookie("token").json({
+//     success: true,
+//     message: "Đã đăng xuất thành công!",
+//   });
+// };
+
 const logoutUser = (req, res) => {
-  res.clearCookie("token").json({
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/",
+  });
+  return res.status(200).json({
     success: true,
     message: "Đã đăng xuất thành công!",
   });

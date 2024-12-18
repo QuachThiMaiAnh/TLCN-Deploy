@@ -1,4 +1,11 @@
-import { House, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
+import {
+  House,
+  LogIn,
+  LogOut,
+  Menu,
+  ShoppingCart,
+  UserCog,
+} from "lucide-react";
 import {
   Link,
   Navigate,
@@ -88,7 +95,6 @@ function HeaderRightContent() {
 
   function handleLogout() {
     dispatch(logoutUser());
-    navigate("/auth/login");
   }
 
   useEffect(() => {
@@ -98,7 +104,7 @@ function HeaderRightContent() {
   }, [dispatch]);
 
   return (
-    <div className="flex lg:items-center lg:flex-row flex-col gap-4">
+    <div className="flex lg:items-center lg:flex-row flex-csol gap-4">
       {/* xử lý giỏ hàng */}
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
@@ -141,6 +147,10 @@ function HeaderRightContent() {
           <DropdownMenuItem onClick={() => navigate("/shop/account")}>
             <UserCog className="mr-2 h-4 w-4" />
             Tài khoản
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate("/auth/login")}>
+            <LogIn className="mr-2 h-4 w-4" /> Đăng nhập
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
