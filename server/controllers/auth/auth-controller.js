@@ -105,16 +105,22 @@ const loginUser = async (req, res) => {
     httpOnly: true: Giúp bảo vệ cookie bằng cách ngăn trình duyệt JavaScript truy cập nó. 
     secure: false: Tùy chọn này cho phép cookie được gửi qua kết nối không an toàn HTTP. 
      */
-    res.cookie("token", token, { httpOnly: true, secure: false }).json({
-      success: true,
-      message: "Đã đăng nhập thành công !",
-      user: {
-        email: checkUser.email,
-        role: checkUser.role,
-        id: checkUser._id,
-        userName: checkUser.userName,
-      },
-    });
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true, // Chỉ dùng HTTPS
+        sameSite: "Lax", // Đảm bảo cookie được gửi cùng redirect từ PayPal
+      })
+      .json({
+        success: true,
+        message: "Đã đăng nhập thành công !",
+        user: {
+          email: checkUser.email,
+          role: checkUser.role,
+          id: checkUser._id,
+          userName: checkUser.userName,
+        },
+      });
   } catch (e) {
     console.log(e);
     res.status(500).json({
@@ -125,13 +131,6 @@ const loginUser = async (req, res) => {
 };
 
 //LOGOUT
-
-// const logoutUser = (req, res) => {
-//   res.clearCookie("token").json({
-//     success: true,
-//     message: "Đã đăng xuất thành công!",
-//   });
-// };
 
 const logoutUser = (req, res) => {
   res.clearCookie("token", {
