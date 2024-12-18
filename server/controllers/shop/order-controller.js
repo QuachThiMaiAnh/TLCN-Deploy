@@ -128,9 +128,9 @@ const createOrder = async (req, res) => {
       },
       redirect_urls: {
         // URL mà người dùng được chuyển tới sau khi thanh toán thành công.
-        return_url: "http://localhost:5173/shop/paypal-return",
+        return_url: "https://tlcn-deploy-1.onrender.com/shop/paypal-return",
         // URL mà người dùng được chuyển tới nếu hủy thanh toán.
-        cancel_url: "http://localhost:5173/shop/paypal-cancel",
+        cancel_url: "https://tlcn-deploy-1.onrender.com/shop/paypal-cancel",
       },
       // Thông tin chi tiết giao dịch
       transactions: [

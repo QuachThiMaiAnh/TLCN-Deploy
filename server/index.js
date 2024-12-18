@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../.env"),
+});
 
 const express = require("express");
 const semver = require("semver");
@@ -35,7 +37,7 @@ const PORT = process.env.PORT || 5000;
 // Cấu hình CORS sử dụng biến môi trường
 app.use(
   cors({
-    origin: process.env.CLIENT_URL, // Đọc URL từ biến môi trường
+    origin: "https://tlcn-deploy-1.onrender.com", // Đọc URL từ biến môi trường
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",

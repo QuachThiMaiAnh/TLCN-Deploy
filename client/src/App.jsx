@@ -40,8 +40,8 @@ function App() {
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
-        <Route path="/" element={<ShoppingHome />} />
-        <Route path="*" element={<ShoppingHome />} />
+        {/* <Route path="/" element={<ShoppingHome />} />
+        <Route path="*" element={<ShoppingHome />} /> */}
 
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth/reset-password/:token" element={<ResetPassword />} />
@@ -85,7 +85,13 @@ function App() {
           <Route path="payment-success" element={<PaymentSuccessPage />} />
         </Route>
 
-        <Route path="/shop" element={<ShoppingLayout />}>
+        {/* <Route path="/shop" element={<ShoppingLayout />}>
+          <Route path="home" element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} />
+          <Route path="search" element={<SearchProducts />} />
+        </Route> */}
+        <Route path="/" element={<ShoppingLayout />}>
+          <Route index element={<ShoppingHome />} />
           <Route path="home" element={<ShoppingHome />} />
           <Route path="listing" element={<ShoppingListing />} />
           <Route path="search" element={<SearchProducts />} />
