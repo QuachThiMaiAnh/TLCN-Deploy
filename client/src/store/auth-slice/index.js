@@ -17,7 +17,7 @@ export const registerUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "https://tlcn-deploy-1.onrender.com/api/auth/register",
         formData,
         { withCredentials: true }
       );
@@ -36,7 +36,7 @@ export const loginUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://tlcn-deploy-1.onrender.com/api/auth/login",
         formData,
         { withCredentials: true }
       );
@@ -55,7 +55,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        "https://tlcn-deploy-1.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );
@@ -74,7 +74,7 @@ export const checkAuth = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/auth/check-auth",
+        "https://tlcn-deploy-1.onrender.com/api/auth/check-auth",
         {
           withCredentials: true,
           headers: {
@@ -98,7 +98,7 @@ export const forgotPassword = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+        "https://tlcn-deploy-1.onrender.com/api/auth/forgot-password",
         { email },
         { withCredentials: true }
       );
@@ -117,7 +117,7 @@ export const resetPassword = createAsyncThunk(
   async ({ token, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/auth/reset-password/${token}`,
+        `https://tlcn-deploy-1.onrender.com/api/auth/reset-password/${token}`,
         { newPassword, confirmPassword },
         { withCredentials: true }
       );

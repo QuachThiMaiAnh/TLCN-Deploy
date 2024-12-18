@@ -5,7 +5,7 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import addressIcon from "../../assets/icons/Address.png";
 import cartIcon from "../../assets/icons/Cart.png";
@@ -18,6 +18,7 @@ function ShoppingCheckout() {
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   console.log(cartItems, "cartItems");
 
@@ -96,10 +97,9 @@ function ShoppingCheckout() {
           variant: "success",
         });
 
-        // Dừng trong 2 giây trước khi chuyển trang
         setTimeout(() => {
-          window.location.href = "/shop/account"; // Chuyển trang sau 2 giây
-        }, 2000); // 2000 ms = 2 giây
+          navigate("/shop/account"); // Chuyển hướng sau 2 giây
+        }, 2000);
       } else {
         toast({
           title: "Có lỗi xảy ra. Vui lòng thử lại!",
