@@ -19,7 +19,7 @@ function PaypalReturnPage() {
       dispatch(capturePayment({ paymentId, payerId, orderId })).then((data) => {
         if (data?.payload?.success) {
           sessionStorage.removeItem("currentOrderId");
-          // window.location.href = "/shop/payment-success";
+          window.location.href = "/shop/payment-success";
         }
       });
     }
