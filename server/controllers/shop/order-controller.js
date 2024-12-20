@@ -147,6 +147,9 @@ const createOrder = async (req, res) => {
             },
           },
           description: "Đơn hàng của bạn từ cửa hàng BLISS",
+          payee: {
+            email: "sb-neih134094921@business.example.com",
+          },
         },
       ],
     };
@@ -200,9 +203,176 @@ const createOrder = async (req, res) => {
   }
 };
 
+// const capturePayment = async (req, res) => {
+//   try {
+//     const { paymentId, payerId, orderId } = req.body;
+
+//     let order = await Order.findById(orderId);
+
+//     if (!order) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Không tìm thấy đơn hàng!",
+//       });
+//     }
+//     paypal.payment.execute(
+//       paymentId,
+//       { payer_id: payerId },
+//       async (error, payment) => {
+//         if (error) {
+//           console.log("PayPal Capture Error:", error);
+//           return res.status(500).json({
+//             success: false,
+//             message: "Lỗi xác nhận thanh toán PayPal.",
+//           });
+//         } else if (payment.state === "approved") {
+//           // Cập nhật đơn hàng đã thanh toán
+//           order.paymentStatus = "paid";
+//           order.paymentId = paymentId;
+//           order.payerId = payerId;
+//           await order.save();
+
+//           // Cập nhật kho hàng
+//           for (let item of order.cartItems) {
+//             const product = await Product.findById(item.productId);
+//             if (product) {
+//               const color = product.colors.find(
+//                 (c) => c._id.toString() === item.colorId
+//               );
+//               const size = color?.sizes.find(
+//                 (s) => s._id.toString() === item.sizeId
+//               );
+
+//               if (size && size.quantity >= item.quantity) {
+//                 size.quantity -= item.quantity;
+//                 product.sales += item.quantity;
+//                 product.totalStock -= item.quantity;
+//                 await product.save();
+//               }
+//             }
+//           }
+
+//           // Xóa giỏ hàng sau khi thanh toán
+//           await Cart.findOneAndDelete({ userId: order.userId });
+
+//           return res.status(200).json({
+//             success: true,
+//             message: "Thanh toán thành công.",
+//             order: order,
+//           });
+//         } else {
+//           return res.status(400).json({
+//             success: false,
+//             message: "Thanh toán chưa được xác nhận.",
+//           });
+//         }
+//       }
+//     );
+//     // order.paymentStatus = "paid";
+//     // order.paymentId = paymentId;
+//     // order.payerId = payerId;
+
+//     // for (let item of order.cartItems) {
+//     //   const product = await Product.findById(item.productId);
+
+//     //   if (!product) {
+//     //     return res.status(404).json({
+//     //       success: false,
+//     //       message: `Không tìm thấy sản phẩm với ID ${item.productId}`,
+//     //     });
+//     //   }
+
+//     //   // Tìm màu sắc
+//     //   const color = product.colors.find(
+//     //     (c) => c._id.toString() === item.colorId
+//     //   );
+//     //   if (!color) {
+//     //     return res.status(404).json({
+//     //       success: false,
+//     //       message: `Không tìm thấy màu sắc với ID ${item.colorId} trong sản phẩm ${product.title}`,
+//     //     });
+//     //   }
+
+//     //   // Tìm kích thước
+//     //   const size = color.sizes.find((s) => s._id.toString() === item.sizeId);
+//     //   if (!size) {
+//     //     return res.status(404).json({
+//     //       success: false,
+//     //       message: `Không tìm thấy kích thước với ID ${item.sizeId} trong màu ${color.name} của sản phẩm ${product.title}`,
+//     //     });
+//     //   }
+
+//     //   // Kiểm tra số lượng tồn kho
+//     //   if (size.quantity < item.quantity) {
+//     //     return res.status(400).json({
+//     //       success: false,
+//     //       message: `Không đủ hàng tồn kho cho sản phẩm ${product.title}, màu ${color.name}, kích thước ${size.size}`,
+//     //     });
+//     //   }
+
+//     //   // Cập nhật số lượng tồn kho
+//     //   size.quantity -= item.quantity;
+
+//     //   // Cập nhật số lượng bán tổng thể của sản phẩm
+//     //   product.sales += item.quantity;
+
+//     //   product.totalStock -= item.quantity;
+
+//     //   await product.save();
+//     // }
+
+//     // // Xóa giỏ hàng sau khi thanh toán thành công
+
+//     // // Lấy userId từ order
+//     // const userId = order.userId;
+
+//     // await Cart.findOneAndDelete(userId);
+
+//     // await order.save();
+
+//     // res.status(200).json({
+//     //   success: true,
+//     //   message: "Đơn hàng thanh toán PayPal đã được tạo thành công.",
+//     //   data: order,
+//     // });
+//   } catch (e) {
+//     console.log(e);
+//     res.status(500).json({
+//       success: false,
+//       message: "Đã xảy ra lỗi! Xin thử lại sau.",
+//     });
+//   }
+// };
+
 const capturePayment = async (req, res) => {
   try {
     const { paymentId, payerId, orderId } = req.body;
+
+    // Xác nhận thanh toán với PayPal
+    const executePaymentJson = {
+      payer_id: payerId,
+    };
+
+    const executePayment = await new Promise((resolve, reject) => {
+      paypal.payment.execute(
+        paymentId,
+        executePaymentJson,
+        (error, payment) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(payment);
+        }
+      );
+    });
+
+    // Kiểm tra nếu thanh toán thành công
+    if (executePayment.state !== "approved") {
+      return res.status(400).json({
+        success: false,
+        message: "Thanh toán PayPal không thành công.",
+      });
+    }
 
     let order = await Order.findById(orderId);
 
@@ -212,126 +382,74 @@ const capturePayment = async (req, res) => {
         message: "Không tìm thấy đơn hàng!",
       });
     }
-    paypal.payment.execute(
-      paymentId,
-      { payer_id: payerId },
-      async (error, payment) => {
-        if (error) {
-          console.log("PayPal Capture Error:", error);
-          return res.status(500).json({
-            success: false,
-            message: "Lỗi xác nhận thanh toán PayPal.",
-          });
-        } else if (payment.state === "approved") {
-          // Cập nhật đơn hàng đã thanh toán
-          order.paymentStatus = "paid";
-          order.paymentId = paymentId;
-          order.payerId = payerId;
-          await order.save();
 
-          // Cập nhật kho hàng
-          for (let item of order.cartItems) {
-            const product = await Product.findById(item.productId);
-            if (product) {
-              const color = product.colors.find(
-                (c) => c._id.toString() === item.colorId
-              );
-              const size = color?.sizes.find(
-                (s) => s._id.toString() === item.sizeId
-              );
+    order.paymentStatus = "paid";
+    order.paymentId = paymentId;
+    order.payerId = payerId;
 
-              if (size && size.quantity >= item.quantity) {
-                size.quantity -= item.quantity;
-                product.sales += item.quantity;
-                product.totalStock -= item.quantity;
-                await product.save();
-              }
-            }
-          }
+    for (let item of order.cartItems) {
+      const product = await Product.findById(item.productId);
 
-          // Xóa giỏ hàng sau khi thanh toán
-          await Cart.findOneAndDelete({ userId: order.userId });
-
-          return res.status(200).json({
-            success: true,
-            message: "Thanh toán thành công.",
-            order: order,
-          });
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: "Thanh toán chưa được xác nhận.",
-          });
-        }
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy sản phẩm với ID ${item.productId}`,
+        });
       }
-    );
-    // order.paymentStatus = "paid";
-    // order.paymentId = paymentId;
-    // order.payerId = payerId;
 
-    // for (let item of order.cartItems) {
-    //   const product = await Product.findById(item.productId);
+      // Tìm màu sắc
+      const color = product.colors.find(
+        (c) => c._id.toString() === item.colorId
+      );
+      if (!color) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy màu sắc với ID ${item.colorId} trong sản phẩm ${product.title}`,
+        });
+      }
 
-    //   if (!product) {
-    //     return res.status(404).json({
-    //       success: false,
-    //       message: `Không tìm thấy sản phẩm với ID ${item.productId}`,
-    //     });
-    //   }
+      // Tìm kích thước
+      const size = color.sizes.find((s) => s._id.toString() === item.sizeId);
+      if (!size) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy kích thước với ID ${item.sizeId} trong màu ${color.name} của sản phẩm ${product.title}`,
+        });
+      }
 
-    //   // Tìm màu sắc
-    //   const color = product.colors.find(
-    //     (c) => c._id.toString() === item.colorId
-    //   );
-    //   if (!color) {
-    //     return res.status(404).json({
-    //       success: false,
-    //       message: `Không tìm thấy màu sắc với ID ${item.colorId} trong sản phẩm ${product.title}`,
-    //     });
-    //   }
+      // Kiểm tra số lượng tồn kho
+      if (size.quantity < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Không đủ hàng tồn kho cho sản phẩm ${product.title}, màu ${color.name}, kích thước ${size.size}`,
+        });
+      }
 
-    //   // Tìm kích thước
-    //   const size = color.sizes.find((s) => s._id.toString() === item.sizeId);
-    //   if (!size) {
-    //     return res.status(404).json({
-    //       success: false,
-    //       message: `Không tìm thấy kích thước với ID ${item.sizeId} trong màu ${color.name} của sản phẩm ${product.title}`,
-    //     });
-    //   }
+      // Cập nhật số lượng tồn kho
+      size.quantity -= item.quantity;
 
-    //   // Kiểm tra số lượng tồn kho
-    //   if (size.quantity < item.quantity) {
-    //     return res.status(400).json({
-    //       success: false,
-    //       message: `Không đủ hàng tồn kho cho sản phẩm ${product.title}, màu ${color.name}, kích thước ${size.size}`,
-    //     });
-    //   }
+      // Cập nhật số lượng bán tổng thể của sản phẩm
+      product.sales += item.quantity;
 
-    //   // Cập nhật số lượng tồn kho
-    //   size.quantity -= item.quantity;
+      product.totalStock -= item.quantity;
 
-    //   // Cập nhật số lượng bán tổng thể của sản phẩm
-    //   product.sales += item.quantity;
+      await product.save();
+    }
 
-    //   product.totalStock -= item.quantity;
+    // Xóa giỏ hàng sau khi thanh toán thành công
 
-    //   await product.save();
-    // }
+    // Lấy userId từ order
+    const userId = order.userId;
 
-    // // Xóa giỏ hàng sau khi thanh toán thành công
+    await Cart.findOneAndDelete(userId);
 
-    // // Lấy userId từ order
-    // const userId = order.userId;
+    await order.save();
 
-    // await Cart.findOneAndDelete(userId);
-
-    // await order.save();
-
-    // res.status(200).json({
-    //   success: true,
-    //   message: "Đơn hàng thanh toán PayPal đã được tạo thành công.",
-    //   data: order,
-    // });
+    res.status(200).json({
+      success: true,
+      message: "Đơn hàng thanh toán PayPal đã được tạo thành công.",
+      data: order,
+    });
   } catch (e) {
     console.log(e);
     res.status(500).json({
