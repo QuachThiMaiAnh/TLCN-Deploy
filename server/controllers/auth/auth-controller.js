@@ -212,7 +212,7 @@ const forgotPassword = async (req, res) => {
       html: `
         <p>Chào ${user.userName},</p>
         <p>Bạn đã yêu cầu khôi phục mật khẩu. Nhấp vào liên kết bên dưới để đặt lại mật khẩu của bạn:</p>
-        <a href="${resetUrl}">${resetUrl}</a>
+        <a href="${resetUrl}">Nhấp vào đây để đặt lại mật khẩu.</a>
         <p>Liên kết này sẽ hết hạn sau 15 phút.</p>
         <p>Nếu bạn không yêu cầu khôi phục mật khẩu, vui lòng bỏ qua email này.</p>
       `,

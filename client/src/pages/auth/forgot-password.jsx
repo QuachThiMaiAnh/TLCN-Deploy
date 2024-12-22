@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { forgotPasswordFormControls } from "@/config";
+import CommonForm from "@/components/common/form";
 
 const initialState = {
   email: "",
