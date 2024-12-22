@@ -13,10 +13,9 @@ const initialState = {
 
 function ForgotPassword() {
   const [formData, setFormData] = useState(initialState);
-  const [email, setEmail] = useState("");
+  const { error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { toast } = useToast();
-  const { error } = useSelector((state) => state.auth);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -36,8 +35,9 @@ function ForgotPassword() {
       }
     });
   };
+
   return (
-    <div className="bg-[url('https://res.cloudinary.com/duxdsq6hd/image/upload/v1734861620/y7s12hoptbsdtfrfbief.jpg')] bg-cover bg-center bg-no-repeat h-screen flex items-center justify-center  ">
+    <div className="bg-[url('https://res.cloudinary.com/duxdsq6hd/image/upload/v1734861642/lrhmiqsqq5qqqizvkcqn.jpg')] bg-cover bg-center bg-no-repeat h-screen flex items-center justify-center  ">
       <div className="mx-auto w-full max-w-md space-y-6 p-10 bg-white bg-opacity-90 rounded-lg shadow-black shadow-lg">
         <h1 className="text-3xl font-bold text-center">Quên Mật Khẩu</h1>
         <CommonForm

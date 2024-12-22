@@ -243,3 +243,19 @@ export const forgotPasswordFormControls = [
     type: "email",
   },
 ];
+export const resetPasswordFormControls = [
+  {
+    name: "password",
+    label: "Mật khẩu",
+    placeholder: "Nhập vào mật khẩu",
+    componentType: "input",
+    type: "password",
+  },
+  {
+    name: "confirmPassword",
+    label: "Xác nhận mật khẩu",
+    placeholder: "Nhập lại mật khẩu",
+    componentType: "input",
+    type: "password",
+  },
+];
