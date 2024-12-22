@@ -39,7 +39,7 @@ function ForgotPassword() {
   return (
     <div className="mx-auto w-full max-w-md space-y-6 p-10">
       <h1 className="text-3xl font-bold text-center">Quên Mật Khẩu</h1>
-      {/* <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           type="email"
           placeholder="Nhập email"
@@ -49,15 +49,15 @@ function ForgotPassword() {
         <Button type="submit" className="w-full">
           Gửi yêu cầu
         </Button>
-      </form> */}
+      </form>
 
-      <CommonForm
+      {/* <CommonForm
         formControls={forgotPasswordFormControls}
         buttonText={"Gửi yêu cầu khôi phục mật khẩu"}
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleSubmit}
-      />
+      /> */}
     </div>
   );
 }
