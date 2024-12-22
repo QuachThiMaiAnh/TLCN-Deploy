@@ -178,6 +178,7 @@ function CommonForm({
 
   function renderInputsByComponentType(getControlItem) {
     let element = null;
+    // truy cập thuộc tính đối tượng bằng cách sử dụng biểu thức
     // value = formData[username] = "MaiAnh"
     const value = formData[getControlItem.name] || "";
     //  ưu tiên lấy giá trị từ displayValues nếu có

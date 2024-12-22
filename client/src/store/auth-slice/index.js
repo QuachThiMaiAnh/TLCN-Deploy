@@ -7,7 +7,6 @@ const initialState = {
   isLoading: true,
   user: null,
   forgotPasswordInfo: null,
-  forgotPasswordError: null,
   error: null, // Thêm trường để lưu lỗi chung
 };
 
@@ -204,16 +203,16 @@ const authSlice = createSlice({
       // Quên mật khẩu
       .addCase(forgotPassword.pending, (state) => {
         state.isLoading = true;
-        state.forgotPasswordError = null;
+        state.error = null;
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false;
         state.forgotPasswordInfo = action.payload;
-        state.forgotPasswordError = null;
+        state.error = null;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false;
-        state.forgotPasswordError = action.payload;
+        state.error = action.payload;
       })
       // Đặt lại mật khẩu
       .addCase(resetPassword.pending, (state) => {
