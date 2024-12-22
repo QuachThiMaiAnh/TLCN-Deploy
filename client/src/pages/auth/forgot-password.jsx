@@ -4,8 +4,14 @@ import { forgotPassword } from "@/store/auth-slice";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { forgotPasswordFormControls } from "@/config";
+
+const initialState = {
+  email: "",
+};
 
 function ForgotPassword() {
+  const [formData, setFormData] = useState(initialState);
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -32,7 +38,7 @@ function ForgotPassword() {
   return (
     <div className="mx-auto w-full max-w-md space-y-6 p-10">
       <h1 className="text-3xl font-bold text-center">Quên Mật Khẩu</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           type="email"
           placeholder="Nhập email"
@@ -42,7 +48,15 @@ function ForgotPassword() {
         <Button type="submit" className="w-full">
           Gửi yêu cầu
         </Button>
-      </form>
+      </form> */}
+
+      <CommonForm
+        formControls={forgotPasswordFormControls}
+        buttonText={"Gửi yêu cầu khôi phục mật khẩu"}
+        formData={formData}
+        setFormData={setFormData}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

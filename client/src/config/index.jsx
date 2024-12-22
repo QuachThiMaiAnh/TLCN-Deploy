@@ -233,3 +233,13 @@ export const addressFormControls = [
     required: false,
   },
 ];
+
+export const forgotPasswordFormControls = [
+  {
+    name: "email",
+    label: "Email",
+    placeholder: "Nhập vào email đặt lại mật khẩu",
+    componentType: "input",
+    type: "email",
+  },
+];
