@@ -156,7 +156,7 @@ const authMiddleware = async (req, res, next) => {
     });
 
   try {
-    // wt.verify trả về dữ liệu gốc chứa thông tin người dùng (gọi là decoded).
+    // jwt.verify trả về dữ liệu gốc chứa thông tin người dùng (gọi là decoded).
     const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
     // gán dữ liệu đã giải mã vào thuộc tính req.user để các middleware/ controller khác có thể truy cập thông tin người dùng.
     req.user = decoded;
@@ -194,7 +194,7 @@ const forgotPassword = async (req, res) => {
     );
 
     // Tạo liên kết đặt lại mật khẩu
-    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
+    const resetUrl = `https://tlcn-deploy-1.onrender.com/auth/reset-password/${resetToken}`;
 
     // Cấu hình email
     const transporter = nodemailer.createTransport({

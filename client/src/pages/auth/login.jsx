@@ -51,7 +51,7 @@ function AuthLogin() {
         <p className="mt-2">
           Chưa có tài khoản
           <Link
-            className="font-medium ml-2 text-primary hover:underline underline-offset-2"
+            className="font-bold ml-2 text-primary hover:underline underline-offset-2"
             to="/auth/register"
           >
             | Đăng ký

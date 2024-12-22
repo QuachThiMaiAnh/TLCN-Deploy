@@ -146,14 +146,6 @@ export const shoppingViewHeaderMenuItems = [
   },
 ];
 
-// export const categoryOptionsMap = {
-//   men: "Men",
-//   women: "Women",
-//   kids: "Kids",
-//   accessories: "Accessories",
-//   footwear: "Footwear",
-// };
-
 // map với id để hiển thị chữ tiếng Việt
 export const categoryOptionsMap = {
   men: "Nam",

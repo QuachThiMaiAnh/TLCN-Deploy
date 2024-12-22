@@ -10,8 +10,9 @@ const shopAddressRouter = require("./shop/address-routes");
 const shopOrderRouter = require("./shop/order-routes");
 const shopSearchRouter = require("./shop/search-routes");
 const shopReviewRouter = require("./shop/review-routes");
-const commonFeatureRouter = require("./common/feature-routes");
 
+const commonFeatureRouter = require("./common/feature-routes");
+const commonUserRouter = require("./common/user-routes");
 module.exports = {
   authRouter,
   adminProductsRouter,
@@ -24,4 +25,5 @@ module.exports = {
   shopSearchRouter,
   shopReviewRouter,
   commonFeatureRouter,
+  commonUserRouter,
 };

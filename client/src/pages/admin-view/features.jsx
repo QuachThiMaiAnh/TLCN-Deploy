@@ -5,7 +5,7 @@ import {
   getFeatureImages,
   deleteFeatureImage,
   deleteAllFeatureImages,
-} from "../../store/common";
+} from "../../store/common/feature";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

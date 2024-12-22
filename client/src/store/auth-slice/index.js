@@ -76,6 +76,7 @@ export const checkAuth = createAsyncThunk(
       const response = await axios.get(
         "https://tlcn-deploy-1.onrender.com/api/auth/check-auth",
         {
+          // cờ này cho phép gửi kèm cookie ( xác thực token...)
           withCredentials: true,
           headers: {
             "Cache-Control":
@@ -134,6 +135,7 @@ export const resetPassword = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
+  // nhận vào state hiện tại và action rồi trả về một state mới.
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload;

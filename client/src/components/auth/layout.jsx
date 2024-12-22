@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 
 function AuthLayout() {
   return (
+    // Là layout dùng chung cho nhiều route con.
     <div className="flex min-h-screen w-full">
       {/* Left section with image and welcome text */}
       {/* Welcome sẽ được sử dụng chung => Tái sử dụng code */}
-      <div className="hidden  lg:flex items-center justify-center bg-black w-1/2 px-12 relative overflow-hidden">
+      <div className="hidden lg:flex items-center justify-center bg-black w-1/2 px-12 relative overflow-hidden">
         {/* Background image */}
         <img
           src="https://media.istockphoto.com/id/1311053726/vector/illustration-of-clothes-and-belongings.jpg?s=612x612&w=0&k=20&c=j8bEmTpr5JwT9VOtG6Isjpkc5-5_ZFy7Y6uLucxxb7Q="
@@ -15,7 +16,7 @@ function AuthLayout() {
         />
         <div className="max-w-md space-y-6 text-center text-primary-foreground z-10 ">
           <motion.h1
-            className="text-5xl font-extrabold tracking-tight text-white  leading-normal"
+            className="text-5xl font-extrabold tracking-tight text-white leading-normal"
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
@@ -42,6 +43,7 @@ function AuthLayout() {
           transition={{ duration: 0.8 }}
           className="w-full max-w-md space-y-8"
         >
+          {/* Là nơi hiển thị component của route con */}
           <Outlet />
         </motion.div>
       </div>

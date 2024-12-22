@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+const User = require("../../models/User");
 
 // 2. Lấy thông tin một người dùng
 const getUserById = async (req, res) => {

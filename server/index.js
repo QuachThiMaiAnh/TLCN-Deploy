@@ -20,6 +20,7 @@ const {
   shopReviewRouter,
   commonFeatureRouter,
   adminDashboardRouter,
+  commonUserRouter,
 } = require("./routes");
 
 // Kết nối MongoDB sử dụng biến môi trường
@@ -69,6 +70,7 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
+app.use("/api/common/user", commonUserRouter);
 
 // Phục vụ các file tĩnh đã biên dịch của React
 app.use(express.static(path.join(__dirname, "../client/dist")));

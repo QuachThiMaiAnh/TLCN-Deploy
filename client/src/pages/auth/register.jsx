@@ -4,8 +4,8 @@ import { registerUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-// import { useToast } from "@/components/ui/use-toast";
 import { useToast } from "@/hooks/use-toast";
+
 const initialState = {
   userName: "",
   email: "",
@@ -33,9 +33,6 @@ function AuthRegister() {
           variant: "destructive",
         });
       }
-
-      // formData done!
-      console.log(data);
     });
   }
   return (
@@ -47,7 +44,7 @@ function AuthRegister() {
         <p className="mt-2">
           Đã có tài khoản
           <Link
-            className="font-medium ml-2 text-primary hover:underline underline-offset-2"
+            className="font-bold ml-2 text-primary hover:underline underline-offset-2"
             to="/auth/login"
           >
             | Đăng nhập

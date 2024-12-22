@@ -5,7 +5,7 @@ const {
   logoutUser,
   authMiddleware,
   forgotPassword,
-  resetPassword, // Import hàm quên mật khẩu
+  resetPassword,
 } = require("../../controllers/auth/auth-controller");
 
 const router = express.Router();
@@ -22,7 +22,6 @@ router.get("/check-auth", authMiddleware, (req, res) => {
   });
 });
 
-// Thêm route quên mật khẩu
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 

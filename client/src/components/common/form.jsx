@@ -27,6 +27,7 @@ function CommonForm({
   const [isBtnDisabled, setIsBtnDisabled] = useState(true); // Thêm trạng thái cho nút submit
 
   useEffect(() => {
+    // true : ẩn      false: hiện
     setIsBtnDisabled(!validateForm() || !externalValidation()); // Kết hợp validate nội bộ và ngoại vi
   }, [formData, passwordError, emailError, externalValidation]); // Theo dõi thay đổi validate bên ngoài
 
@@ -66,6 +67,11 @@ function CommonForm({
     return isValid;
   }
 
+  // Hàm định dạng số với dấu chấm ngăn cách
+  function formatNumberWithSeparator(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
   function handleEmailChange(event) {
     const { value } = event.target;
     setFormData({
@@ -73,11 +79,6 @@ function CommonForm({
       [event.target.name]: value,
     });
     validateEmail(value);
-  }
-
-  // Hàm định dạng số với dấu chấm ngăn cách
-  function formatNumberWithSeparator(value) {
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   function handleNumberChange(event, name) {
@@ -156,6 +157,7 @@ function CommonForm({
     });
     validateEmail(value);
   }
+
   useEffect(() => {
     // Định dạng lại các giá trị số khi dữ liệu từ database được load lên
     const formattedDisplayValues = {};
@@ -176,7 +178,9 @@ function CommonForm({
 
   function renderInputsByComponentType(getControlItem) {
     let element = null;
+    // value = formData[username] = "MaiAnh"
     const value = formData[getControlItem.name] || "";
+    //  ưu tiên lấy giá trị từ displayValues nếu có
     const displayValue = displayValues[getControlItem.name] || value;
 
     switch (getControlItem.componentType) {
@@ -235,8 +239,6 @@ function CommonForm({
               onChange={(event) =>
                 handleNumberChange(event, getControlItem.name)
               }
-              // inputMode="numeric" // Hỗ trợ bàn phím số trên thiết bị di động
-              // pattern="[0-9]*" // Đảm bảo chỉ cho phép các ký tự số
             />
           );
         } else {
