@@ -16,7 +16,8 @@ const addProductReview = async (req, res) => {
     if (!order) {
       return res.status(403).json({
         success: false,
-        message: "Bạn cần mua sản phẩm này để đánh giá nó !",
+        message:
+          "Hãy đánh giá sản phẩm sau khi đơn hàng của bạn được giao thành công!",
       });
     }
 
