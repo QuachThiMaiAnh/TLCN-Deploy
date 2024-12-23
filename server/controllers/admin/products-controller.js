@@ -1,6 +1,23 @@
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 const Product = require("../../models/Product");
+const cloudinary = require("cloudinary").v2;
 
+// Route xóa ảnh
+const deleteImageUpload = async (req, res) => {
+  const { public_id } = req.body;
+
+  try {
+    const result = await cloudinary.uploader.destroy(public_id);
+    if (result.result === "ok") {
+      res.json({ success: true, message: "Image deleted successfully" });
+    } else {
+      res.json({ success: false, message: "Failed to delete image" });
+    }
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 // Xử lý upload hình ảnh lên Cloudinary
 const handleImageUpload = async (req, res) => {
   try {
@@ -155,36 +172,8 @@ const editProduct = async (req, res) => {
   }
 };
 
-// Lấy danh sách sản phẩm với phân trang
-// const fetchAllProducts = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const pageSize = parseInt(req.query.pageSize) || 10;
-
-//     const skip = (page - 1) * pageSize;
-
-//     const products = await Product.find().skip(skip).limit(pageSize);
-
-//     const totalProducts = await Product.countDocuments();
-
-//     res.status(200).json({
-//       success: true,
-//       data: products,
-//       totalProducts,
-//       currentPage: page,
-//       totalPages: Math.ceil(totalProducts / pageSize),
-//       pageSize,
-//     });
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).json({
-//       success: false,
-//       message: "Đã xảy ra lỗi nào đó !",
-//     });
-//   }
-// };
-
 // Lấy danh sách sản phẩm với phân trang và lọc
+// hỗ trợ object params để tự động chuyển đổi các tham số truyền vào thành query string.
 const fetchAllProducts = async (req, res) => {
   try {
     const { page = 1, pageSize = 10, category, brand, search } = req.query;
@@ -200,15 +189,19 @@ const fetchAllProducts = async (req, res) => {
     if (brand) {
       filterConditions.brand = brand; // Lọc theo brand
     }
+    // Định nghĩa một điều kiện lọc dựa trên trường title trong cơ sở dữ liệu MongoDB.
+    // $regex: Tạo điều kiện khớp với một mẫu chuỗi (pattern). Ở đây, mẫu chuỗi là giá trị của biến search.
+    // Tùy chọn "i" (case-insensitive) làm cho việc tìm kiếm không phân biệt chữ hoa và chữ thường.
     if (search) {
       filterConditions.title = { $regex: search, $options: "i" }; // Lọc theo từ khóa
     }
 
     const products = await Product.find(filterConditions)
-      .sort({ createdAt: -1 }) // Thêm phần này để sắp xếp theo ngày tạo giảm dần
+      .sort({ createdAt: -1 }) // -1: Sắp xếp theo thứ tự giảm dần (từ mới nhất đến cũ nhất).
       .skip(skip)
       .limit(parseInt(pageSize));
 
+    // Tổng số sản phẩm thỏa điều kiện lọc
     const totalProducts = await Product.countDocuments(filterConditions);
 
     res.status(200).json({
@@ -260,4 +253,5 @@ module.exports = {
   fetchAllProducts,
   editProduct,
   deleteProduct,
+  deleteImageUpload,
 };

@@ -39,33 +39,33 @@ function ProductImageUpload({
     }
   }
 
-  // Xử lý xóa ảnh mới (trong imageFiles)
-  function handleRemoveImage(index) {
-    const dataTransfer = new DataTransfer();
-    Array.from(imageFiles).forEach((file, i) => {
-      if (i !== index) {
-        dataTransfer.items.add(file);
+  // Xử lý xóa ảnh đã tải lên (trên Cloudinary và trong uploadedImageUrls)
+  async function handleRemoveUploadedImage(index) {
+    const imageToRemove = uploadedImageUrls[index]; // URL ảnh cần xóa
+    const publicId = imageToRemove.split("/").pop().split(".")[0]; // Lấy public_id từ URL ảnh
+
+    try {
+      const response = await axios.delete(
+        "http://localhost:5000/api/admin/products/delete-image",
+        { data: { public_id: publicId } }
+      );
+
+      if (response?.data?.success) {
+        const newUploadedUrls = uploadedImageUrls.filter((_, i) => i !== index);
+        setUploadedImageUrls(newUploadedUrls);
+      } else {
+        console.error("Failed to delete image on Cloudinary");
       }
-    });
-    setImageFiles(dataTransfer.files.length > 0 ? dataTransfer.files : null);
-
-    // Reset input file để tránh giữ trạng thái cũ
-    if (inputRef.current) {
-      inputRef.current.value = "";
+    } catch (error) {
+      console.error("Error deleting image:", error);
     }
-  }
-
-  // Xử lý xóa ảnh đã tải lên (trong uploadedImageUrls)
-  function handleRemoveUploadedImage(index) {
-    const newUploadedUrls = uploadedImageUrls.filter((_, i) => i !== index);
-    setUploadedImageUrls(newUploadedUrls);
   }
 
   async function uploadImagesToCloudinary() {
     setImageLoadingState(true);
     const data = new FormData();
 
-    // Thêm tất cả các file hình ảnh mới vào FormData
+    // Thêm tất cả các file hình ảnh mới
     for (const file of imageFiles) {
       data.append("my_files", file);
     }

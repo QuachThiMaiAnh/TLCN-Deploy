@@ -37,6 +37,7 @@ function AdminProductTile({
     <Card className="w-full max-w-sm mx-auto  hover:scale-105 hover:shadow-muted-foreground hover:shadow-xl duration-200 ">
       <div>
         <div className="relative">
+          {/* Images là một mảng các url ảnh */}
           <img
             src={product?.images[currentImageIndex]}
             alt={product?.title}
