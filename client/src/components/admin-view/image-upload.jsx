@@ -46,7 +46,7 @@ function ProductImageUpload({
 
     try {
       const response = await axios.delete(
-        "http://localhost:5000/api/admin/products/delete-image",
+        "https://tlcn-deploy-1.onrender.com/api/admin/products/delete-image",
         { data: { public_id: publicId } }
       );
 
