@@ -9,7 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { Fragment } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
 const adminSidebarMenuItems = [
@@ -47,7 +47,7 @@ const adminSidebarMenuItems = [
 
 function MenuItems({ setOpen }) {
   const navigate = useNavigate();
-
+  const location = useLocation(); // Lấy đường dẫn hiện tại
   return (
     <nav className="mt-8 flex-col flex gap-2">
       {/* điều hướng đến trang tương ứng của menuItem trong SideBar */}
@@ -60,7 +60,12 @@ function MenuItems({ setOpen }) {
             navigate(menuItem.path);
             setOpen ? setOpen(false) : null;
           }}
-          className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-muted-foreground border font-bold hover:bg-muted hover:text-foreground hover:border-black "
+          className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-muted-foreground border font-bold 
+            ${
+              location.pathname === menuItem.path
+                ? "bg-muted text-primary border-black" // Định dạng khi đang được chọn
+                : "hover:bg-muted hover:text-foreground hover:border-black" // Định dạng khi hover
+            }`}
         >
           {menuItem.icon}
           <span>{menuItem.label}</span>

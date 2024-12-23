@@ -53,12 +53,11 @@ function AdminProducts() {
     search: "",
   });
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const [pageSize, setPageSize] = useState(2); // Trang hiện tại
+  const [pageSize, setPageSize] = useState(4); // Trang hiện tại
   // Lấy dữ liệu sản phẩm từ Redux store
   const { products, totalPages, productList, totalCount, error } = useSelector(
     (state) => state.adminProducts
   );
-
   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
     useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -193,15 +192,6 @@ function AdminProducts() {
     });
   }
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: error,
-        variant: "destructive",
-      });
-    }
-  }, [error, toast]);
-
   function goToNextPage() {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -293,13 +283,6 @@ function AdminProducts() {
       .every((item) => item);
   }
 
-  // Gửi request lấy sản phẩm khi thay đổi trang hoặc bộ lọc
-  useEffect(() => {
-    dispatch(
-      fetchAllProducts({ ...filters, page: currentPage, pageSize: pageSize })
-    );
-  }, [dispatch, currentPage, filters]);
-
   // Hàm cập nhật bộ lọc khi thay đổi
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -309,6 +292,24 @@ function AdminProducts() {
   useEffect(() => {
     setFormData({ ...formData, images: uploadedImageUrls });
   }, [uploadedImageUrls]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+
+  // Gửi request lấy sản phẩm khi thay đổi trang hoặc bộ lọc
+  // Trộn filters với page và pageSize là đúng cú pháp và phù hợp với hàm fetchAllProducts
+  useEffect(() => {
+    dispatch(
+      fetchAllProducts({ ...filters, page: currentPage, pageSize: pageSize })
+    );
+  }, [dispatch, currentPage, filters]);
+
   console.log(formData, "formData");
 
   return (
