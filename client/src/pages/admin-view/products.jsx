@@ -113,12 +113,25 @@ function AdminProducts() {
   }
 
   function handleAddSize(colorIndex) {
+    // Tạo bản sao của formData.colors
     const newColors = [...formData.colors];
-    if (!newColors[colorIndex].sizes) {
-      newColors[colorIndex].sizes = [];
+
+    // Kiểm tra và đảm bảo `sizes` là một mảng trước khi thao tác
+    if (!Array.isArray(newColors[colorIndex].sizes)) {
+      newColors[colorIndex].sizes = []; // Khởi tạo mảng nếu chưa tồn tại
     }
-    newColors[colorIndex].sizes.push({ size: "", quantity: 0 });
-    setFormData({ ...formData, colors: newColors });
+
+    // Tạo một bản sao an toàn khi thêm phần tử mới
+    newColors[colorIndex] = {
+      ...newColors[colorIndex],
+      sizes: [...newColors[colorIndex].sizes, { size: "", quantity: 0 }],
+    };
+
+    // Cập nhật state với formData mới
+    setFormData({
+      ...formData,
+      colors: newColors,
+    });
   }
 
   function handleAddDefaultSizes(colorIndex, defaultType) {

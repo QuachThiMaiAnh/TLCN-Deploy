@@ -1,39 +1,6 @@
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
 
-// const getAllOrdersOfAllUsers = async (req, res) => {
-//   try {
-//     const { page = 1, pageSize = 10 } = req.query; // Lấy page và pageSize từ query params
-//     const skip = (page - 1) * pageSize;
-
-//     const totalCount = await Order.countDocuments(); // Tổng số đơn hàng
-
-//     const orders = await Order.find({})
-//       .sort({ orderDate: -1 }) // Sắp xếp giảm dần
-//       .skip(skip) // Bỏ qua các bản ghi từ các trang trước
-//       .limit(Number(pageSize)); // Giới hạn số bản ghi trả về
-
-//     if (!orders.length) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Không tìm thấy đơn hàng nào!",
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: orders,
-//       totalCount, // Trả về tổng số bản ghi để tính tổng số trang
-//     });
-//   } catch (e) {
-//     console.log(e);
-//     res.status(500).json({
-//       success: false,
-//       message: "Đã xảy ra lỗi!",
-//     });
-//   }
-// };
-
 const getAllOrdersOfAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10, orderStatus } = req.query; // Lấy giá trị page, limit và orderStatus từ query
